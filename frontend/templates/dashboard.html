@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - LogSage AI{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-0">
+    <!-- Header -->
+    <div class="md:flex md:items-center md:justify-between mb-8">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
+                Dashboard
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+                Welcome to LogSage AI - Your intelligent log analysis companion
+            </p>
+        </div>
+        <div class="mt-4 flex md:mt-0 md:ml-4">
+            <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                <i class="fas fa-refresh mr-2"></i>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <!-- Total Files -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-file-alt text-gray-400 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Total Log Files</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="total-files">-</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Anomalies -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-warning text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Active Anomalies</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="active-anomalies">-</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Conversations -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-comments text-primary-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">AI Conversations</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="ai-conversations">-</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-heart text-success text-2xl" id="health-icon"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">System Health</dt>
+                            <dd class="text-lg font-medium text-gray-900" id="system-health">Checking...</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white shadow rounded-lg mb-8">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                <i class="fas fa-bolt text-primary-600 mr-2"></i>
+                Quick Actions
+            </h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <a href="{{ url_for('upload_page') }}" class="relative group bg-white p-6 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 rounded-lg border border-gray-300 hover:border-primary-500 transition-colors">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-primary-50 text-primary-600 group-hover:bg-primary-100">
+                            <i class="fas fa-upload text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium text-gray-900">Upload Logs</h3>
+                        <p class="mt-2 text-sm text-gray-500">Upload and parse new log files for analysis</p>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('logs_page') }}" class="relative group bg-white p-6 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 rounded-lg border border-gray-300 hover:border-primary-500 transition-colors">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-blue-50 text-blue-600 group-hover:bg-blue-100">
+                            <i class="fas fa-search text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium text-gray-900">Analyze Logs</h3>
+                        <p class="mt-2 text-sm text-gray-500">Search and filter through uploaded log files</p>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('anomalies_page') }}" class="relative group bg-white p-6 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 rounded-lg border border-gray-300 hover:border-primary-500 transition-colors">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-orange-50 text-orange-600 group-hover:bg-orange-100">
+                            <i class="fas fa-exclamation-triangle text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium text-gray-900">View Anomalies</h3>
+                        <p class="mt-2 text-sm text-gray-500">Review detected anomalies and unusual patterns</p>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('chat_page') }}" class="relative group bg-white p-6 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 rounded-lg border border-gray-300 hover:border-primary-500 transition-colors">
+                    <div>
+                        <span class="rounded-lg inline-flex p-3 bg-green-50 text-green-600 group-hover:bg-green-100">
+                            <i class="fas fa-robot text-xl"></i>
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-lg font-medium text-gray-900">AI Assistant</h3>
+                        <p class="mt-2 text-sm text-gray-500">Ask questions about your logs using AI</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                <i class="fas fa-clock text-primary-600 mr-2"></i>
+                Recent Activity
+            </h3>
+            <div class="flow-root">
+                <ul role="list" class="-mb-8" id="recent-activity">
+                    <li class="text-center py-8 text-gray-500">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p>Loading recent activity...</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Dashboard JavaScript functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load dashboard data
+        loadDashboardData();
+        
+        // Set up auto-refresh every 30 seconds
+        setInterval(loadDashboardData, 30000);
+    });
+
+    async function loadDashboardData() {
+        try {
+            // Get system status
+            const statusResponse = await fetch('/api/status');
+            const statusData = await statusResponse.json();
+            
+            updateSystemHealth(statusData);
+            updateStats();
+            updateRecentActivity();
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+            updateSystemHealth({ error: 'Connection failed' });
+        }
+    }
+
+    function updateSystemHealth(data) {
+        const healthIcon = document.getElementById('health-icon');
+        const healthText = document.getElementById('system-health');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        
+        if (data.error) {
+            healthIcon.className = 'fas fa-exclamation-triangle text-danger text-2xl';
+            healthText.textContent = 'Offline';
+            statusIndicator.className = 'w-3 h-3 bg-red-500 rounded-full';
+            statusText.textContent = 'System Offline';
+        } else {
+            healthIcon.className = 'fas fa-heart text-success text-2xl';
+            healthText.textContent = 'Online';
+            statusIndicator.className = 'w-3 h-3 bg-green-500 rounded-full';
+            statusText.textContent = 'System Online';
+        }
+    }
+
+    function updateStats() {
+        // Placeholder for stats - will be populated when connected to backend
+        document.getElementById('total-files').textContent = '0';
+        document.getElementById('active-anomalies').textContent = '0';
+        document.getElementById('ai-conversations').textContent = '0';
+    }
+
+    function updateRecentActivity() {
+        const activityList = document.getElementById('recent-activity');
+        activityList.innerHTML = `
+            <li class="text-center py-8 text-gray-500">
+                <i class="fas fa-info-circle text-2xl mb-2"></i>
+                <p>No recent activity to display</p>
+                <p class="text-sm mt-1">Upload some log files to get started!</p>
+            </li>
+        `;
+    }
+</script>
+{% endblock %}

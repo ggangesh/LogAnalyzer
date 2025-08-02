@@ -1,0 +1,20 @@
+{
+  "file_id": "test_b10_file_28102ac4",
+  "dimension": 1536,
+  "total_vectors": 2,
+  "created_at": "2025-08-02T19:41:16.278070",
+  "updated_at": "2025-08-02T19:41:16.333840",
+  "embedding_model": "openai-text-embedding-ada-002",
+  "chunks": [
+    {
+      "chunk_id": "20cfeedc-8ab3-41ab-93f4-91aa97f96c30",
+      "vector_id": 0,
+      "chunk_index": 0
+    },
+    {
+      "chunk_id": "bb3bfe1d-bcdc-42da-87cf-67fbe2da5fa7",
+      "vector_id": 1,
+      "chunk_index": 2
+    }
+  ]
+}

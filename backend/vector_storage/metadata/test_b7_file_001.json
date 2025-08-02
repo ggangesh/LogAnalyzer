@@ -1,0 +1,35 @@
+{
+  "file_id": "test_b7_file_001",
+  "dimension": 128,
+  "total_vectors": 5,
+  "created_at": "2025-08-02T19:00:22.247890",
+  "updated_at": "2025-08-02T19:00:22.378999",
+  "embedding_model": "openai-text-embedding-ada-002",
+  "chunks": [
+    {
+      "chunk_id": "88ca517b-045a-4cf2-8b7e-fccf4e419d06",
+      "vector_id": 0,
+      "chunk_index": 0
+    },
+    {
+      "chunk_id": "231e2ac5-975e-4552-9d49-badda8998611",
+      "vector_id": 1,
+      "chunk_index": 2
+    },
+    {
+      "chunk_id": "0f04bccb-4948-4632-bfbd-cf0a9bfcec6b",
+      "vector_id": 2,
+      "chunk_index": 4
+    },
+    {
+      "chunk_id": "2cb24c0a-9d18-45c1-bbd6-04518233ce21",
+      "vector_id": 3,
+      "chunk_index": 6
+    },
+    {
+      "chunk_id": "2f82320f-112a-4e4c-8662-9e35c1ad077e",
+      "vector_id": 4,
+      "chunk_index": 8
+    }
+  ]
+}

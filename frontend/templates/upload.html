@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Upload - LogSage AI{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-0">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl">
+            <i class="fas fa-upload text-primary-600 mr-3"></i>
+            Upload Log Files
+        </h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Upload and parse your log files for AI-powered analysis
+        </p>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="max-w-lg mx-auto">
+                <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-500 transition-colors">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-lg font-medium text-gray-900 mb-2">Drop your log files here</p>
+                    <p class="text-sm text-gray-500 mb-4">or click to browse files</p>
+                    <input type="file" id="file-input" class="hidden" accept=".log,.txt,.json,.csv,.xml,.yaml,.yml" multiple>
+                    <button type="button" onclick="document.getElementById('file-input').click()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Choose Files
+                    </button>
+                </div>
+                <div id="file-list" class="mt-6 hidden">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Selected Files:</h4>
+                    <ul id="selected-files" class="space-y-2"></ul>
+                </div>
+                <div id="upload-progress" class="mt-6 hidden">
+                    <div class="bg-gray-200 rounded-full h-2">
+                        <div id="progress-bar" class="bg-primary-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="progress-text" class="text-sm text-gray-500 mt-2">Uploading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Upload functionality will be added in future tasks
+    console.log('Upload page loaded');
+</script>
+{% endblock %}

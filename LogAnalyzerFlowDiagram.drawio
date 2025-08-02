@@ -1,0 +1,86 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
+  <diagram name="Page-1" id="0-kpMB3by7JxD0-51B-M">
+    <mxGraphModel dx="1025" dy="1616" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="7TJRHSgZhv9J6tBcqp8U-41">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="230" y="-919" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-41" value="log file.txt" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="-949" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-42" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="7TJRHSgZhv9J6tBcqp8U-43" target="7TJRHSgZhv9J6tBcqp8U-51">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-43" value="&lt;div&gt;Combine Context and prompt&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="-949" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=#0000FF;" edge="1" parent="1" source="7TJRHSgZhv9J6tBcqp8U-45">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="285" y="-889" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-45" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="95" y="-859" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-46" value="Query related to logs" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="145" y="-859" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-51" value="UI" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="660" y="-811" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-71" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Helvetica;fontSize=12;fontColor=default;strokeColor=#0000FF;" edge="1" parent="1" source="7TJRHSgZhv9J6tBcqp8U-52">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="290" y="-889" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-52" value="Response" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="680" y="-870" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-58" value="Vector Embeding&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="-959" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-72" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Helvetica;fontSize=12;fontColor=default;strokeColor=#0000FF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="-921" as="targetPoint" />
+            <mxPoint x="480" y="-921" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-59" value="Vector DB&lt;div&gt;(Elastic)&lt;/div&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="420" y="-969" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-60" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" target="7TJRHSgZhv9J6tBcqp8U-59">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="360" y="-929" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-61" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#0000FF;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="360" y="-911" as="sourcePoint" />
+            <mxPoint x="410" y="-911" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-73" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Helvetica;fontSize=12;fontColor=default;strokeColor=#0000FF;" edge="1" parent="1" source="7TJRHSgZhv9J6tBcqp8U-63">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="660" y="-924" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-63" value="Retrieval" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontColor=default;fillColor=default;" vertex="1" parent="1">
+          <mxGeometry x="526" y="-959" width="80" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-65" value="Prompt" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="607" y="-960" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-74" value="LLM (Chat-GPT)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="665" y="-974" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="7TJRHSgZhv9J6tBcqp8U-75" value="&lt;b&gt;Log Analyzer Flow Diagram&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="9" y="-1062" width="180" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
