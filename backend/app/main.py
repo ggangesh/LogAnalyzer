@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 from pathlib import Path
 
-from app.routers import upload, log_analysis, database, anomaly, vectors, embeddings, rag, chat, documentation
+from app.routers import upload, log_analysis, database, anomaly, vectors, embeddings, rag, chat, documentation, summarization, reports
 from app.services.database_service import db_service
 from app.services.vector_storage import vector_service
 from app.services.embedding_service import embedding_service
@@ -96,6 +96,14 @@ app = FastAPI(
             "description": "Comprehensive API documentation and usage guides"
         },
         {
+            "name": "Summarization",
+            "description": "Log summarization and daily/weekly insights generation"
+        },
+        {
+            "name": "Reports",
+            "description": "JSON report generation and export functionality"
+        },
+        {
             "name": "system",
             "description": "System health checks and service status endpoints"
         }
@@ -121,6 +129,8 @@ app.include_router(embeddings.router)
 app.include_router(rag.router)
 app.include_router(chat.router)
 app.include_router(documentation.router)
+app.include_router(summarization.router)
+app.include_router(reports.router)
 
 # Startup event to initialize services
 @app.on_event("startup")
@@ -158,7 +168,9 @@ async def health_check():
             "vector_storage": "operational", 
             "embeddings": "operational",
             "rag_pipeline": "operational",
-            "chat_service": "operational"
+            "chat_service": "operational",
+            "summarization": "operational",
+            "reports": "operational"
         },
         "documentation": {
             "swagger_ui": "/docs",

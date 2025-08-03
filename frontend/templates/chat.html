@@ -15,15 +15,660 @@
         </p>
     </div>
 
-    <!-- Chat Interface -->
-    <div class="bg-white shadow rounded-lg">
+    <!-- File Selection & Settings -->
+    <div class="bg-white shadow rounded-lg mb-6">
         <div class="px-4 py-5 sm:p-6">
-            <div class="text-center py-12">
-                <i class="fas fa-comments text-gray-400 text-4xl mb-4"></i>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">AI Chat Interface</h3>
-                <p class="text-sm text-gray-500">Upload and analyze log files to start chatting with AI</p>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Chat Settings</h3>
+                <button id="clear-chat" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-trash mr-2"></i>
+                    Clear Chat
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <!-- File Selection -->
+                <div>
+                    <label for="chat-file-selector" class="block text-sm font-medium text-gray-700 mb-1">Log File</label>
+                    <select id="chat-file-selector" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                        <option value="">Select a log file...</option>
+                    </select>
+                </div>
+                
+                <!-- Analysis Type -->
+                <div>
+                    <label for="analysis-type" class="block text-sm font-medium text-gray-700 mb-1">Analysis Type</label>
+                    <select id="analysis-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                        <option value="general">General Q&A</option>
+                        <option value="summary">Generate Summary</option>
+                        <option value="errors">Error Analysis</option>
+                        <option value="anomalies">Anomaly Analysis</option>
+                        <option value="security">Security Review</option>
+                        <option value="performance">Performance Analysis</option>
+                        <option value="troubleshooting">Troubleshooting</option>
+                    </select>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Quick Actions</label>
+                    <div class="flex space-x-2">
+                        <button id="analyze-logs" class="flex-1 inline-flex justify-center items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            Analyze
+                        </button>
+                        <button id="sample-questions" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-lightbulb"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="bg-white shadow rounded-lg flex flex-col h-96">
+        <!-- Chat Header -->
+        <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-robot text-primary-600"></i>
+                    </div>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-900">LogSage AI Assistant</p>
+                    <p class="text-xs text-gray-500" id="chat-status">Ready to help with your logs</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <div id="connection-indicator" class="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span class="text-xs text-gray-500">Online</span>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+            <!-- Welcome Message -->
+            <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-robot text-primary-600 text-sm"></i>
+                    </div>
+                </div>
+                <div class="bg-gray-100 rounded-lg px-4 py-2 max-w-xs lg:max-w-md">
+                    <p class="text-sm text-gray-900">
+                        👋 Hello! I'm your AI assistant for log analysis. Select a log file above and ask me questions about it, or choose an analysis type for automated insights.
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">Just now</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="hidden px-4 py-2 border-t border-gray-200">
+            <div class="flex items-center space-x-2">
+                <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                </div>
+                <span class="text-xs text-gray-500">AI is thinking...</span>
+            </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="border-t border-gray-200 px-4 py-3">
+            <div class="flex items-center space-x-3">
+                <div class="flex-1">
+                    <textarea
+                        id="message-input"
+                        rows="1"
+                        placeholder="Ask me about your logs... (e.g., 'Show me all error messages from the last hour')"
+                        class="block w-full resize-none border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                        disabled
+                    ></textarea>
+                </div>
+                <button
+                    id="send-message"
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    <i class="fas fa-paper-plane text-sm"></i>
+                </button>
+            </div>
+            
+            <!-- Quick Suggestions -->
+            <div id="quick-suggestions" class="hidden mt-3">
+                <div class="flex flex-wrap gap-2">
+                    <button class="suggestion-btn inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200">
+                        Show error summary
+                    </button>
+                    <button class="suggestion-btn inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200">
+                        Find performance issues
+                    </button>
+                    <button class="suggestion-btn inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200">
+                        Security analysis
+                    </button>
+                    <button class="suggestion-btn inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200">
+                        Anomaly detection
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Questions Modal -->
+    <div id="questions-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            Sample Questions
+                        </h3>
+                        <button id="close-questions-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="border-l-4 border-blue-400 pl-4">
+                            <h4 class="font-medium text-gray-900">General Questions</h4>
+                            <ul class="mt-2 space-y-1 text-sm text-gray-600">
+                                <li class="cursor-pointer hover:text-blue-600 sample-question" data-question="What are the most common error messages?">• What are the most common error messages?</li>
+                                <li class="cursor-pointer hover:text-blue-600 sample-question" data-question="Show me a summary of today's logs">• Show me a summary of today's logs</li>
+                                <li class="cursor-pointer hover:text-blue-600 sample-question" data-question="How many requests were processed in the last hour?">• How many requests were processed in the last hour?</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="border-l-4 border-red-400 pl-4">
+                            <h4 class="font-medium text-gray-900">Error Analysis</h4>
+                            <ul class="mt-2 space-y-1 text-sm text-gray-600">
+                                <li class="cursor-pointer hover:text-red-600 sample-question" data-question="Find all critical errors from the last 24 hours">• Find all critical errors from the last 24 hours</li>
+                                <li class="cursor-pointer hover:text-red-600 sample-question" data-question="What caused the most recent system failures?">• What caused the most recent system failures?</li>
+                                <li class="cursor-pointer hover:text-red-600 sample-question" data-question="Show error trends over time">• Show error trends over time</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="border-l-4 border-green-400 pl-4">
+                            <h4 class="font-medium text-gray-900">Performance & Security</h4>
+                            <ul class="mt-2 space-y-1 text-sm text-gray-600">
+                                <li class="cursor-pointer hover:text-green-600 sample-question" data-question="Analyze response times and performance">• Analyze response times and performance</li>
+                                <li class="cursor-pointer hover:text-green-600 sample-question" data-question="Detect any suspicious login attempts">• Detect any suspicious login attempts</li>
+                                <li class="cursor-pointer hover:text-green-600 sample-question" data-question="Find unusual traffic patterns">• Find unusual traffic patterns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// AI Chat Interface JavaScript for LogSage AI
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('AI Chat interface loaded');
+    
+    let currentFileId = null;
+    let conversationHistory = [];
+    let isWaitingForResponse = false;
+    
+    // Initialize chat interface
+    initializeChatInterface();
+    
+    function initializeChatInterface() {
+        loadUploadedFiles();
+        setupEventListeners();
+        setupAutoResize();
+    }
+    
+    function setupEventListeners() {
+        // File selector
+        const fileSelector = document.getElementById('chat-file-selector');
+        if (fileSelector) {
+            fileSelector.addEventListener('change', handleFileSelection);
+        }
+        
+        // Control buttons
+        const analyzeBtn = document.getElementById('analyze-logs');
+        const clearChatBtn = document.getElementById('clear-chat');
+        const sampleQuestionsBtn = document.getElementById('sample-questions');
+        
+        if (analyzeBtn) {
+            analyzeBtn.addEventListener('click', runAutomaticAnalysis);
+        }
+        
+        if (clearChatBtn) {
+            clearChatBtn.addEventListener('click', clearChatHistory);
+        }
+        
+        if (sampleQuestionsBtn) {
+            sampleQuestionsBtn.addEventListener('click', showSampleQuestions);
+        }
+        
+        // Message input and send
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-message');
+        
+        if (messageInput) {
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+        
+        if (sendBtn) {
+            sendBtn.addEventListener('click', sendMessage);
+        }
+        
+        // Quick suggestions
+        const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+        suggestionBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const question = this.textContent.trim();
+                sendPredefinedMessage(question);
+            });
+        });
+        
+        // Sample questions modal
+        const closeModalBtn = document.getElementById('close-questions-modal');
+        const modal = document.getElementById('questions-modal');
+        
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', hideSampleQuestions);
+        }
+        
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    hideSampleQuestions();
+                }
+            });
+        }
+        
+        // Sample question clicks
+        const sampleQuestions = document.querySelectorAll('.sample-question');
+        sampleQuestions.forEach(question => {
+            question.addEventListener('click', function() {
+                const questionText = this.getAttribute('data-question');
+                sendPredefinedMessage(questionText);
+                hideSampleQuestions();
+            });
+        });
+    }
+    
+    function setupAutoResize() {
+        const messageInput = document.getElementById('message-input');
+        if (messageInput) {
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                
+                // Limit max height
+                if (this.scrollHeight > 120) {
+                    this.style.height = '120px';
+                    this.style.overflowY = 'auto';
+                } else {
+                    this.style.overflowY = 'hidden';
+                }
+            });
+        }
+    }
+    
+    async function loadUploadedFiles() {
+        const fileSelector = document.getElementById('chat-file-selector');
+        if (!fileSelector) return;
+        
+        try {
+            // TODO: Replace with actual API call
+            // Mock data for demonstration
+            const mockFiles = [
+                { id: 'file1', name: 'application.log', size: 1024000 },
+                { id: 'file2', name: 'error.log', size: 512000 },
+                { id: 'file3', name: 'access.log', size: 2048000 }
+            ];
+            
+            // Clear existing options except the first one
+            fileSelector.innerHTML = '<option value="">Select a log file...</option>';
+            
+            // Add file options
+            mockFiles.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file.id;
+                option.textContent = `${file.name} (${window.LogSage.utils.formatFileSize(file.size)})`;
+                fileSelector.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error('Error loading files:', error);
+            window.LogSage.utils.showNotification('Failed to load uploaded files.', 'error');
+        }
+    }
+    
+    function handleFileSelection(e) {
+        const fileId = e.target.value;
+        currentFileId = fileId;
+        
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-message');
+        const analyzeBtn = document.getElementById('analyze-logs');
+        const quickSuggestions = document.getElementById('quick-suggestions');
+        const chatStatus = document.getElementById('chat-status');
+        
+        if (fileId) {
+            // Enable chat controls
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+            analyzeBtn.disabled = false;
+            
+            // Show quick suggestions
+            quickSuggestions.classList.remove('hidden');
+            
+            // Update status
+            chatStatus.textContent = `Ready to analyze ${e.target.selectedOptions[0].text}`;
+            
+            // Add context message
+            addAIMessage(`📁 Great! I'm now connected to your log file: ${e.target.selectedOptions[0].text.split(' (')[0]}. You can ask me questions about this file or use the quick analysis options above.`);
+            
+        } else {
+            // Disable chat controls
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            analyzeBtn.disabled = true;
+            
+            // Hide quick suggestions
+            quickSuggestions.classList.add('hidden');
+            
+            // Update status
+            chatStatus.textContent = 'Please select a log file to start chatting';
+        }
+    }
+    
+    async function sendMessage() {
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+        
+        if (!message || !currentFileId || isWaitingForResponse) {
+            return;
+        }
+        
+        // Add user message
+        addUserMessage(message);
+        
+        // Clear input
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Simulate AI response
+        await simulateAIResponse(message);
+    }
+    
+    function sendPredefinedMessage(message) {
+        if (!currentFileId || isWaitingForResponse) {
+            if (!currentFileId) {
+                window.LogSage.utils.showNotification('Please select a log file first.', 'warning');
+            }
+            return;
+        }
+        
+        // Add user message
+        addUserMessage(message);
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Simulate AI response
+        simulateAIResponse(message);
+    }
+    
+    async function runAutomaticAnalysis() {
+        if (!currentFileId) {
+            window.LogSage.utils.showNotification('Please select a log file first.', 'warning');
+            return;
+        }
+        
+        const analysisType = document.getElementById('analysis-type').value;
+        const analysisTypeNames = {
+            'general': 'General Analysis',
+            'summary': 'Summary Generation',
+            'errors': 'Error Analysis',
+            'anomalies': 'Anomaly Detection',
+            'security': 'Security Review',
+            'performance': 'Performance Analysis',
+            'troubleshooting': 'Troubleshooting Guide'
+        };
+        
+        const message = `Run ${analysisTypeNames[analysisType]} on this log file`;
+        
+        // Add user message
+        addUserMessage(message);
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Simulate extended AI analysis
+        await simulateAnalysisResponse(analysisType);
+    }
+    
+    function addUserMessage(message) {
+        const messagesContainer = document.getElementById('messages-container');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex items-start space-x-3 justify-end';
+        
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="bg-primary-600 text-white rounded-lg px-4 py-2 max-w-xs lg:max-w-md">
+                <p class="text-sm">${escapeHtml(message)}</p>
+                <p class="text-xs mt-1 opacity-75">${timeString}</p>
+            </div>
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-white text-sm"></i>
+                </div>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        scrollToBottom();
+        
+        // Add to conversation history
+        conversationHistory.push({
+            role: 'user',
+            message: message,
+            timestamp: now.toISOString()
+        });
+    }
+    
+    function addAIMessage(message, isAnalysis = false) {
+        const messagesContainer = document.getElementById('messages-container');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex items-start space-x-3';
+        
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // Format message content
+        let formattedMessage = formatAIMessage(message, isAnalysis);
+        
+        messageDiv.innerHTML = `
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-robot text-primary-600 text-sm"></i>
+                </div>
+            </div>
+            <div class="bg-gray-100 rounded-lg px-4 py-2 max-w-xs lg:max-w-md">
+                <div class="text-sm text-gray-900">${formattedMessage}</div>
+                <p class="text-xs text-gray-500 mt-1">${timeString}</p>
+            </div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        scrollToBottom();
+        
+        // Add to conversation history
+        conversationHistory.push({
+            role: 'assistant',
+            message: message,
+            timestamp: now.toISOString()
+        });
+    }
+    
+    function formatAIMessage(message, isAnalysis = false) {
+        if (isAnalysis) {
+            // Format analysis results with better structure
+            return message.replace(/\n\n/g, '</p><p class="mt-2">')
+                         .replace(/\n/g, '<br>')
+                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                         .replace(/^/, '<p>')
+                         .replace(/$/, '</p>');
+        } else {
+            // Basic message formatting
+            return escapeHtml(message)
+                   .replace(/\n/g, '<br>')
+                   .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+    }
+    
+    function showTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+        }
+        isWaitingForResponse = true;
+    }
+    
+    function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.classList.add('hidden');
+        }
+        isWaitingForResponse = false;
+    }
+    
+    async function simulateAIResponse(userMessage) {
+        // Simulate thinking time
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 1000));
+        
+        hideTypingIndicator();
+        
+        // Generate contextual response based on user message
+        const response = generateMockResponse(userMessage);
+        addAIMessage(response);
+    }
+    
+    async function simulateAnalysisResponse(analysisType) {
+        // Simulate longer analysis time
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 3000 + 2000));
+        
+        hideTypingIndicator();
+        
+        // Generate analysis response
+        const response = generateAnalysisResponse(analysisType);
+        addAIMessage(response, true);
+    }
+    
+    function generateMockResponse(userMessage) {
+        const message = userMessage.toLowerCase();
+        
+        if (message.includes('error') || message.includes('fail')) {
+            return `🔍 I found **3 critical errors** and **12 warning messages** in your logs. The most common error is "Database connection timeout" occurring 8 times between 2:00 PM and 4:00 PM today. Would you like me to show you the specific error patterns or help troubleshoot the database connectivity issues?`;
+        } else if (message.includes('summary') || message.includes('overview')) {
+            return `📊 Here's a summary of your log file:\n\n**Total Entries:** 1,247\n**Time Range:** Last 24 hours\n**Error Rate:** 2.4% (30 errors)\n**Top Sources:** API (45%), Database (23%), Auth (18%)\n**Peak Activity:** 2:00 PM - 4:00 PM\n\nThe system appears stable with normal error rates. Would you like me to dive deeper into any specific area?`;
+        } else if (message.includes('performance') || message.includes('slow')) {
+            return `⚡ Performance analysis shows:\n\n**Average Response Time:** 245ms\n**95th Percentile:** 1.2s\n**Slowest Endpoints:** /api/users (avg 890ms), /api/reports (avg 654ms)\n**Database Queries:** 15% slower than baseline\n\nI recommend investigating the database performance and optimizing the user and reports endpoints. Would you like specific recommendations?`;
+        } else if (message.includes('security') || message.includes('login') || message.includes('auth')) {
+            return `🔒 Security review findings:\n\n**Login Attempts:** 234 successful, 12 failed\n**Failed Login Sources:** 2 unique IPs (normal)\n**Suspicious Activity:** None detected\n**Authentication Errors:** 3 token expiration errors\n\nYour authentication system is working normally. The failed logins appear to be legitimate user errors rather than attacks.`;
+        } else if (message.includes('anomal') || message.includes('unusual')) {
+            return `🎯 Anomaly detection results:\n\n**2 anomalies detected:**\n\n1. **Volume Spike** at 3:15 PM - 300% increase in API calls (confidence: 95%)\n2. **Error Burst** at 4:22 PM - 15 consecutive database errors (confidence: 87%)\n\nBoth anomalies appear to be related to a temporary database connectivity issue. Would you like me to help analyze the root cause?`;
+        } else if (message.includes('recent') || message.includes('latest')) {
+            return `🕒 Most recent activity (last hour):\n\n**Latest Entries:** 47 new log entries\n**Status Distribution:** 89% INFO, 8% WARNING, 3% ERROR\n**Recent Errors:** 2 database timeouts at 4:45 PM\n**Active Users:** 23 concurrent sessions\n\nSystem activity is within normal parameters. The recent database timeouts may warrant attention if they continue.`;
+        } else {
+            return `🤔 I understand you're asking about "${userMessage}". Based on your log data, I can help you with:\n\n• **Error analysis** and troubleshooting\n• **Performance** metrics and bottlenecks\n• **Security** reviews and anomaly detection\n• **Usage patterns** and statistics\n\nCould you be more specific about what you'd like to know? You can also try the quick suggestions below the chat box!`;
+        }
+    }
+    
+    function generateAnalysisResponse(analysisType) {
+        switch (analysisType) {
+            case 'summary':
+                return `📊 **Log File Summary Analysis**\n\n**Overview:**\n• Total entries: 1,247 over 24 hours\n• File size: 2.1 MB\n• Average entries per hour: 52\n\n**Entry Distribution:**\n• INFO: 986 entries (79%)\n• WARNING: 201 entries (16%)\n• ERROR: 45 entries (4%)\n• CRITICAL: 15 entries (1%)\n\n**Key Findings:**\n• Peak activity: 2:00 PM - 4:00 PM (312 entries)\n• Error rate slightly elevated during peak hours\n• Most active component: API Gateway (34% of entries)\n• No critical system failures detected\n\n**Recommendations:**\n• Monitor database connection pool during peak hours\n• Review API Gateway performance optimizations\n• Consider log rotation if file size continues growing`;
+                
+            case 'errors':
+                return `🚨 **Error Analysis Report**\n\n**Error Summary:**\n• Total errors: 60 entries\n• Critical: 15 entries\n• Error: 45 entries\n• Error rate: 4.8% (above 3% threshold)\n\n**Top Error Categories:**\n1. **Database Connection Timeouts** (23 occurrences)\n   - Peak: 3:15-3:45 PM\n   - Source: User management service\n\n2. **API Rate Limit Exceeded** (18 occurrences)\n   - Affected endpoint: /api/v1/reports\n   - Source IP: 192.168.1.105\n\n3. **Authentication Failures** (12 occurrences)\n   - Token validation errors\n   - Spread throughout the day\n\n**Immediate Actions Needed:**\n• Investigate database connection pool configuration\n• Review rate limiting rules for reports endpoint\n• Monitor authentication service health`;
+                
+            case 'performance':
+                return `⚡ **Performance Analysis Report**\n\n**Response Time Metrics:**\n• Average: 245ms (target: <200ms)\n• 95th percentile: 1.2s\n• 99th percentile: 2.8s\n• Timeout rate: 0.3%\n\n**Bottleneck Analysis:**\n1. **Database Queries** (avg 340ms)\n   - Slow query detection: 23 queries >500ms\n   - Worst performer: user_reports table scan\n\n2. **External API Calls** (avg 890ms)\n   - Third-party service: payment gateway\n   - 12% failure rate on retries\n\n3. **Memory Usage Spikes**\n   - Peak: 87% at 3:30 PM\n   - Garbage collection delays: 45ms average\n\n**Optimization Recommendations:**\n• Add database indexing for user_reports table\n• Implement connection pooling for payment gateway\n• Increase memory allocation or optimize memory usage\n• Consider caching for frequently accessed data`;
+                
+            case 'security':
+                return `🔒 **Security Analysis Report**\n\n**Authentication Activity:**\n• Successful logins: 234\n• Failed login attempts: 12\n• Account lockouts: 0\n• Password reset requests: 3\n\n**Access Patterns:**\n• Unique IP addresses: 45\n• Geographic distribution: Normal\n• Off-hours access: 3 sessions (acceptable)\n• Admin account usage: 2 sessions\n\n**Security Events:**\n• **No critical security threats detected**\n• **No brute force attempts identified**\n• **No suspicious file access patterns**\n\n**Compliance Check:**\n✅ Failed login attempts logged\n✅ Admin actions tracked\n✅ Sensitive data access recorded\n✅ Session management working correctly\n\n**Minor Recommendations:**\n• Review off-hours access patterns periodically\n• Consider implementing 2FA for admin accounts\n• Monitor unusual geographic access patterns`;
+                
+            case 'anomalies':
+                return `🎯 **Anomaly Detection Report**\n\n**Detected Anomalies: 3**\n\n**1. Traffic Volume Spike (High Severity)**\n• Time: 3:15 PM - 3:45 PM\n• Normal volume: ~50 requests/min\n• Anomaly volume: ~150 requests/min\n• Confidence: 95%\n• Impact: Increased response times\n\n**2. Error Rate Burst (Medium Severity)**\n• Time: 4:22 PM - 4:28 PM\n• Normal error rate: 1-2%\n• Anomaly rate: 15%\n• Confidence: 87%\n• Impact: Service degradation\n\n**3. Database Connection Pattern (Low Severity)**\n• Time: Various throughout day\n• Unusual connection timing patterns\n• Confidence: 65%\n• Impact: Minimal\n\n**Root Cause Analysis:**\n• Traffic spike likely caused database overload\n• Error burst appears to be cascading effect\n• Connection patterns suggest configuration drift\n\n**Recommended Actions:**\n• Investigate traffic source for spike\n• Review database performance during peak\n• Monitor for recurring patterns`;
+                
+            default:
+                return `🔍 **General Analysis Complete**\n\nI've analyzed your log file and found:\n\n• Overall system health: **Good**\n• Error rate: **Within acceptable limits**\n• Performance: **Minor optimizations needed**\n• Security: **No threats detected**\n\nWould you like me to dive deeper into any specific area? I can provide detailed error analysis, performance bottleneck identification, security reviews, or anomaly detection reports.`;
+        }
+    }
+    
+    function showSampleQuestions() {
+        const modal = document.getElementById('questions-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    }
+    
+    function hideSampleQuestions() {
+        const modal = document.getElementById('questions-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+    
+    function clearChatHistory() {
+        const messagesContainer = document.getElementById('messages-container');
+        if (messagesContainer) {
+            // Keep only the welcome message
+            const welcomeMessage = messagesContainer.firstElementChild;
+            messagesContainer.innerHTML = '';
+            if (welcomeMessage) {
+                messagesContainer.appendChild(welcomeMessage);
+            }
+        }
+        
+        conversationHistory = [];
+        window.LogSage.utils.showNotification('Chat history cleared.', 'success');
+    }
+    
+    function scrollToBottom() {
+        const messagesContainer = document.getElementById('messages-container');
+        if (messagesContainer) {
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+});
+</script>
 {% endblock %}

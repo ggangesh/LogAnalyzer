@@ -61,6 +61,15 @@
                         <a href="{{ url_for('anomalies_page') }}" class="{% if request.endpoint == 'anomalies_page' %}border-primary-500 text-gray-900{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-exclamation-triangle mr-2"></i>Anomalies
                         </a>
+                        <a href="{{ url_for('insights_page') }}" class="{% if request.endpoint == 'insights_page' %}border-primary-500 text-gray-900{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-lightbulb mr-2"></i>Insights
+                        </a>
+                        <a href="{{ url_for('charts_page') }}" class="{% if request.endpoint == 'charts_page' %}border-primary-500 text-gray-900{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-chart-bar mr-2"></i>Charts
+                        </a>
+                        <a href="{{ url_for('reports_page') }}" class="{% if request.endpoint == 'reports_page' %}border-primary-500 text-gray-900{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-file-download mr-2"></i>Reports
+                        </a>
                         <a href="{{ url_for('chat_page') }}" class="{% if request.endpoint == 'chat_page' %}border-primary-500 text-gray-900{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                             <i class="fas fa-comments mr-2"></i>AI Chat
                         </a>

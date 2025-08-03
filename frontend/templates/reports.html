@@ -1,0 +1,508 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Downloads - LogSage AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Reports & Downloads</h1>
+        <p class="text-gray-600 mb-4">Generate and download comprehensive JSON reports from your log data</p>
+    </div>
+
+    <!-- File Selection Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Select Log File</h2>
+        <div class="flex items-center space-x-4">
+            <select id="fileSelect" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1">
+                <option value="">Select a log file...</option>
+            </select>
+            <button id="refreshFiles" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Report Types Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <!-- Basic Report Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-file-alt text-blue-500 text-2xl mr-3"></i>
+                <h3 class="text-lg font-semibold text-gray-800">Basic Report</h3>
+            </div>
+            <p class="text-gray-600 mb-4">Essential log statistics and sample entries</p>
+            <div class="text-sm text-gray-500 mb-4">
+                <strong>Includes:</strong> Metadata, Statistics, Sample Logs
+            </div>
+            <div class="space-y-2">
+                <button id="previewBasic" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-colors">
+                    <i class="fas fa-eye mr-2"></i>Preview
+                </button>
+                <button id="downloadBasic" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
+                    <i class="fas fa-download mr-2"></i>Download JSON
+                </button>
+            </div>
+        </div>
+
+        <!-- Detailed Report Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-file-text text-green-500 text-2xl mr-3"></i>
+                <h3 class="text-lg font-semibold text-gray-800">Detailed Report</h3>
+            </div>
+            <p class="text-gray-600 mb-4">Comprehensive report with anomalies and full log data</p>
+            <div class="text-sm text-gray-500 mb-4">
+                <strong>Includes:</strong> All logs, Anomalies, AI Summary
+            </div>
+            <div class="mb-4">
+                <label class="flex items-center mb-2">
+                    <input type="checkbox" id="includeAnomalies" checked class="mr-2">
+                    <span class="text-sm">Include Anomalies</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="checkbox" id="includeSummary" checked class="mr-2">
+                    <span class="text-sm">Include AI Summary</span>
+                </label>
+            </div>
+            <div class="space-y-2">
+                <button id="previewDetailed" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-colors">
+                    <i class="fas fa-eye mr-2"></i>Preview
+                </button>
+                <button id="downloadDetailed" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
+                    <i class="fas fa-download mr-2"></i>Download JSON
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtered Report Card -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-filter text-purple-500 text-2xl mr-3"></i>
+                <h3 class="text-lg font-semibold text-gray-800">Filtered Report</h3>
+            </div>
+            <p class="text-gray-600 mb-4">Report based on specific filter criteria</p>
+            <div class="text-sm text-gray-500 mb-4">
+                <strong>Includes:</strong> Filtered data, Filter statistics
+            </div>
+            <div class="space-y-2">
+                <button id="configureFilter" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-colors">
+                    <i class="fas fa-cog mr-2"></i>Configure Filter
+                </button>
+                <button id="previewFiltered" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-colors disabled:opacity-50" disabled>
+                    <i class="fas fa-eye mr-2"></i>Preview
+                </button>
+                <button id="downloadFiltered" class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50" disabled>
+                    <i class="fas fa-download mr-2"></i>Download JSON
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Configuration Modal -->
+    <div id="filterModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Configure Filter Options</h3>
+                
+                <!-- Time Range Filter -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Time Range</label>
+                    <select id="filterTimeRange" class="w-full bg-white border border-gray-300 rounded-md px-3 py-2">
+                        <option value="">No time filter</option>
+                        <option value="last_1h">Last 1 Hour</option>
+                        <option value="last_24h">Last 24 Hours</option>
+                        <option value="last_7d">Last 7 Days</option>
+                        <option value="last_30d">Last 30 Days</option>
+                    </select>
+                </div>
+
+                <!-- Log Levels Filter -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Log Levels</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="log-level-filter mr-2" value="info" checked>
+                            <span class="text-sm">Info</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="log-level-filter mr-2" value="warning" checked>
+                            <span class="text-sm">Warning</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="log-level-filter mr-2" value="error" checked>
+                            <span class="text-sm">Error</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="log-level-filter mr-2" value="debug">
+                            <span class="text-sm">Debug</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="log-level-filter mr-2" value="critical" checked>
+                            <span class="text-sm">Critical</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Search Text Filter -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search Text</label>
+                    <input type="text" id="filterSearchText" placeholder="Search in log messages..." 
+                           class="w-full bg-white border border-gray-300 rounded-md px-3 py-2">
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex justify-end space-x-2 pt-4">
+                    <button id="cancelFilter" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md transition-colors">
+                        Cancel
+                    </button>
+                    <button id="applyFilter" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md transition-colors">
+                        Apply Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+            <span id="loadingMessage" class="text-blue-700">Processing request...</span>
+        </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div id="previewSection" class="hidden bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">Report Preview</h2>
+            <button id="closePreview" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="previewContent" class="bg-gray-50 p-4 rounded-md overflow-auto max-h-96">
+            <!-- Preview content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Recent Downloads Section -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Downloads</h2>
+        <div id="recentDownloads" class="space-y-2">
+            <!-- Recent downloads will be populated here -->
+            <div class="text-gray-500 text-sm italic">No recent downloads</div>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    <div id="errorDisplay" class="hidden fixed bottom-4 right-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg z-50">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+            <span id="errorMessage" class="text-red-700"></span>
+            <button id="closeError" class="ml-4 text-red-500 hover:text-red-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Display -->
+    <div id="successDisplay" class="hidden fixed bottom-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+            <span id="successMessage" class="text-green-700"></span>
+            <button id="closeSuccess" class="ml-4 text-green-500 hover:text-green-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let currentFileId = '';
+let filterOptions = {};
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadFiles();
+    setupEventListeners();
+    loadRecentDownloads();
+});
+
+function setupEventListeners() {
+    // File selection and refresh
+    document.getElementById('refreshFiles').addEventListener('click', loadFiles);
+    document.getElementById('fileSelect').addEventListener('change', handleFileSelection);
+
+    // Report actions
+    document.getElementById('previewBasic').addEventListener('click', () => previewReport('basic'));
+    document.getElementById('downloadBasic').addEventListener('click', () => downloadReport('basic'));
+    document.getElementById('previewDetailed').addEventListener('click', () => previewReport('detailed'));
+    document.getElementById('downloadDetailed').addEventListener('click', () => downloadReport('detailed'));
+    document.getElementById('previewFiltered').addEventListener('click', () => previewReport('filtered'));
+    document.getElementById('downloadFiltered').addEventListener('click', () => downloadReport('filtered'));
+
+    // Filter modal
+    document.getElementById('configureFilter').addEventListener('click', showFilterModal);
+    document.getElementById('cancelFilter').addEventListener('click', hideFilterModal);
+    document.getElementById('applyFilter').addEventListener('click', applyFilter);
+
+    // Preview and notifications
+    document.getElementById('closePreview').addEventListener('click', hidePreview);
+    document.getElementById('closeError').addEventListener('click', hideError);
+    document.getElementById('closeSuccess').addEventListener('click', hideSuccess);
+}
+
+async function loadFiles() {
+    try {
+        // Demo files for MVP
+        const fileSelect = document.getElementById('fileSelect');
+        fileSelect.innerHTML = '<option value="">Select a log file...</option>';
+        
+        const demoFiles = [
+            { id: 'demo_1', name: 'application.log (2.5MB)', size: '2,547,892 bytes' },
+            { id: 'demo_2', name: 'error.log (1.2MB)', size: '1,234,567 bytes' },
+            { id: 'demo_3', name: 'access.log (5.8MB)', size: '5,823,441 bytes' },
+            { id: 'demo_4', name: 'system.log (3.1MB)', size: '3,145,728 bytes' }
+        ];
+        
+        demoFiles.forEach(file => {
+            const option = document.createElement('option');
+            option.value = file.id;
+            option.textContent = file.name;
+            option.dataset.size = file.size;
+            fileSelect.appendChild(option);
+        });
+        
+    } catch (error) {
+        console.error('Error loading files:', error);
+        showError('Failed to load files');
+    }
+}
+
+function handleFileSelection() {
+    currentFileId = document.getElementById('fileSelect').value;
+    
+    // Enable/disable buttons based on file selection
+    const buttons = ['downloadBasic', 'downloadDetailed', 'previewBasic', 'previewDetailed'];
+    buttons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (currentFileId) {
+            button.disabled = false;
+            button.classList.remove('opacity-50');
+        } else {
+            button.disabled = true;
+            button.classList.add('opacity-50');
+        }
+    });
+}
+
+async function previewReport(type) {
+    if (!currentFileId) {
+        showError('Please select a log file first');
+        return;
+    }
+
+    showLoading('Generating preview...');
+    
+    try {
+        let url = `/api/reports/preview/${currentFileId}?report_type=${type}&limit=5`;
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (response.ok && result.status === 'success') {
+            showPreview(result.data, type);
+        } else {
+            showError(result.error || 'Failed to generate preview');
+        }
+    } catch (error) {
+        console.error('Error previewing report:', error);
+        showError('Failed to generate preview');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function downloadReport(type) {
+    if (!currentFileId) {
+        showError('Please select a log file first');
+        return;
+    }
+
+    showLoading('Preparing download...');
+    
+    try {
+        let url;
+        let options = {};
+        
+        if (type === 'basic') {
+            url = `/api/reports/download/basic/${currentFileId}`;
+        } else if (type === 'detailed') {
+            const includeAnomalies = document.getElementById('includeAnomalies').checked;
+            const includeSummary = document.getElementById('includeSummary').checked;
+            url = `/api/reports/download/detailed/${currentFileId}?include_anomalies=${includeAnomalies}&include_summary=${includeSummary}`;
+        } else if (type === 'filtered') {
+            url = `/api/reports/download/filtered/${currentFileId}`;
+            options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filterOptions)
+            };
+        }
+        
+        const response = await fetch(url, options);
+        
+        if (response.ok) {
+            // Create blob and download
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            
+            // Get filename from Content-Disposition header or create default
+            const contentDisposition = response.headers.get('Content-Disposition');
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                if (filenameMatch) {
+                    link.download = filenameMatch[1];
+                }
+            } else {
+                link.download = `logsage_${type}_report_${currentFileId}.json`;
+            }
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+            
+            // Add to recent downloads
+            addToRecentDownloads(type, link.download);
+            showSuccess('Report downloaded successfully');
+        } else {
+            const error = await response.json();
+            showError(error.error || 'Failed to download report');
+        }
+    } catch (error) {
+        console.error('Error downloading report:', error);
+        showError('Failed to download report');
+    } finally {
+        hideLoading();
+    }
+}
+
+function showFilterModal() {
+    document.getElementById('filterModal').classList.remove('hidden');
+}
+
+function hideFilterModal() {
+    document.getElementById('filterModal').classList.add('hidden');
+}
+
+function applyFilter() {
+    // Collect filter options
+    filterOptions = {};
+    
+    // Time range
+    const timeRange = document.getElementById('filterTimeRange').value;
+    if (timeRange) {
+        filterOptions.time_range = {
+            quick_filter: timeRange
+        };
+    }
+    
+    // Log levels
+    const selectedLevels = Array.from(document.querySelectorAll('.log-level-filter:checked')).map(cb => cb.value);
+    if (selectedLevels.length > 0) {
+        filterOptions.log_levels = selectedLevels;
+    }
+    
+    // Search text
+    const searchText = document.getElementById('filterSearchText').value.trim();
+    if (searchText) {
+        filterOptions.search_text = searchText;
+    }
+    
+    // Enable filtered report buttons
+    document.getElementById('previewFiltered').disabled = false;
+    document.getElementById('downloadFiltered').disabled = false;
+    document.getElementById('previewFiltered').classList.remove('disabled:opacity-50');
+    document.getElementById('downloadFiltered').classList.remove('disabled:opacity-50');
+    
+    hideFilterModal();
+    showSuccess('Filter configuration applied');
+}
+
+function showPreview(data, type) {
+    const previewContent = document.getElementById('previewContent');
+    previewContent.innerHTML = `<pre class="text-sm">${JSON.stringify(data, null, 2)}</pre>`;
+    document.getElementById('previewSection').classList.remove('hidden');
+}
+
+function hidePreview() {
+    document.getElementById('previewSection').classList.add('hidden');
+}
+
+function addToRecentDownloads(type, filename) {
+    const recentDownloads = document.getElementById('recentDownloads');
+    
+    // Remove "no recent downloads" message
+    if (recentDownloads.querySelector('.italic')) {
+        recentDownloads.innerHTML = '';
+    }
+    
+    const downloadItem = document.createElement('div');
+    downloadItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+    downloadItem.innerHTML = `
+        <div>
+            <span class="font-medium text-sm">${filename}</span>
+            <span class="text-xs text-gray-500 ml-2">${new Date().toLocaleString()}</span>
+        </div>
+        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${type}</span>
+    `;
+    
+    recentDownloads.insertBefore(downloadItem, recentDownloads.firstChild);
+    
+    // Keep only last 5 downloads
+    while (recentDownloads.children.length > 5) {
+        recentDownloads.removeChild(recentDownloads.lastChild);
+    }
+}
+
+function loadRecentDownloads() {
+    // This would load from localStorage or API in a real implementation
+    // For demo, we'll leave it empty
+}
+
+function showLoading(message = 'Processing...') {
+    document.getElementById('loadingMessage').textContent = message;
+    document.getElementById('loadingState').classList.remove('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingState').classList.add('hidden');
+}
+
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorDisplay').classList.remove('hidden');
+    setTimeout(hideError, 5000); // Auto-hide after 5 seconds
+}
+
+function hideError() {
+    document.getElementById('errorDisplay').classList.add('hidden');
+}
+
+function showSuccess(message) {
+    document.getElementById('successMessage').textContent = message;
+    document.getElementById('successDisplay').classList.remove('hidden');
+    setTimeout(hideSuccess, 3000); // Auto-hide after 3 seconds
+}
+
+function hideSuccess() {
+    document.getElementById('successDisplay').classList.add('hidden');
+}
+</script>
+{% endblock %}

@@ -67,6 +67,21 @@ def chat_page():
     """AI chat interface page"""
     return render_template('chat.html')
 
+@app.route('/insights')
+def insights_page():
+    """AI insights and summaries page"""
+    return render_template('insights.html')
+
+@app.route('/charts')
+def charts_page():
+    """Data visualization and charts page"""
+    return render_template('charts.html')
+
+@app.route('/reports')
+def reports_page():
+    """Reports generation and download page"""
+    return render_template('reports.html')
+
 @app.route('/api/upload', methods=['POST'])
 def api_upload():
     """Proxy upload requests to FastAPI backend"""
@@ -97,6 +112,157 @@ def api_status():
         result = {'error': f'Connection error: {str(e)}'}
     
     return jsonify(result)
+
+# JSON Report Download Routes
+@app.route('/api/reports/download/basic/<file_id>')
+def download_basic_report(file_id):
+    """Download basic JSON report"""
+    try:
+        url = f"{API_BASE}/reports/download/basic/{file_id}"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            # Return the JSON response with proper headers for download
+            from flask import Response
+            return Response(
+                response.content,
+                mimetype='application/json',
+                headers={
+                    'Content-Disposition': f'attachment; filename=logsage_basic_report_{file_id}.json'
+                }
+            )
+        else:
+            return jsonify({'error': f'Failed to generate report: {response.status_code}'}), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Connection error: {str(e)}'}), 500
+
+@app.route('/api/reports/download/detailed/<file_id>')
+def download_detailed_report(file_id):
+    """Download detailed JSON report"""
+    try:
+        include_anomalies = request.args.get('include_anomalies', 'true').lower() == 'true'
+        include_summary = request.args.get('include_summary', 'true').lower() == 'true'
+        
+        url = f"{API_BASE}/reports/download/detailed/{file_id}"
+        params = {
+            'include_anomalies': include_anomalies,
+            'include_summary': include_summary
+        }
+        response = requests.get(url, params=params)
+        
+        if response.status_code == 200:
+            from flask import Response
+            return Response(
+                response.content,
+                mimetype='application/json',
+                headers={
+                    'Content-Disposition': f'attachment; filename=logsage_detailed_report_{file_id}.json'
+                }
+            )
+        else:
+            return jsonify({'error': f'Failed to generate report: {response.status_code}'}), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Connection error: {str(e)}'}), 500
+
+@app.route('/api/reports/download/filtered/<file_id>', methods=['POST'])
+def download_filtered_report(file_id):
+    """Download filtered JSON report"""
+    try:
+        filter_data = request.get_json() or {}
+        
+        url = f"{API_BASE}/reports/download/filtered/{file_id}"
+        response = requests.post(url, json=filter_data)
+        
+        if response.status_code == 200:
+            from flask import Response
+            return Response(
+                response.content,
+                mimetype='application/json',
+                headers={
+                    'Content-Disposition': f'attachment; filename=logsage_filtered_report_{file_id}.json'
+                }
+            )
+        else:
+            return jsonify({'error': f'Failed to generate report: {response.status_code}'}), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Connection error: {str(e)}'}), 500
+
+@app.route('/api/reports/generate/basic/<file_id>')
+def generate_basic_report(file_id):
+    """Generate basic JSON report"""
+    try:
+        url = f"{API_BASE}/reports/basic/{file_id}"
+        response = requests.post(url)
+        
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({'error': f'Failed to generate report: {response.status_code}'}), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Connection error: {str(e)}'}), 500
+
+@app.route('/api/reports/generate/detailed/<file_id>')
+def generate_detailed_report(file_id):
+    """Generate detailed JSON report"""
+    try:
+        include_anomalies = request.args.get('include_anomalies', 'true').lower() == 'true'
+        include_summary = request.args.get('include_summary', 'true').lower() == 'true'
+        
+        url = f"{API_BASE}/reports/detailed/{file_id}"
+        params = {
+            'include_anomalies': include_anomalies,
+            'include_summary': include_summary
+        }
+        response = requests.post(url, params=params)
+        
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({'error': f'Failed to generate report: {response.status_code}'}), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Connection error: {str(e)}'}), 500
+
+@app.route('/api/reports/preview/<file_id>')
+def preview_report(file_id):
+    """Preview report data"""
+    try:
+        report_type = request.args.get('report_type', 'basic')
+        limit = request.args.get('limit', '10')
+        
+        url = f"{API_BASE}/reports/preview/{file_id}"
+        params = {
+            'report_type': report_type,
+            'limit': limit
+        }
+        response = requests.get(url, params=params)
+        
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({'error': f'Failed to preview report: {response.status_code}'}), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Connection error: {str(e)}'}), 500
+
+@app.route('/api/reports/types')
+def get_report_types():
+    """Get available report types"""
+    try:
+        url = f"{API_BASE}/reports/types"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({'error': f'Failed to get report types: {response.status_code}'}), response.status_code
+            
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': f'Connection error: {str(e)}'}), 500
 
 @app.errorhandler(404)
 def not_found_error(error):

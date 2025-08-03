@@ -31,12 +31,33 @@
                 <div id="file-list" class="mt-6 hidden">
                     <h4 class="text-sm font-medium text-gray-900 mb-2">Selected Files:</h4>
                     <ul id="selected-files" class="space-y-2"></ul>
+                    <div class="mt-4">
+                        <button id="upload-btn" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload Files
+                        </button>
+                    </div>
                 </div>
                 <div id="upload-progress" class="mt-6 hidden">
                     <div class="bg-gray-200 rounded-full h-2">
-                        <div id="progress-bar" class="bg-primary-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        <div id="progress-bar" class="bg-primary-600 h-2 rounded-full transition-all duration-300 progress-bar-animated" style="width: 0%"></div>
                     </div>
                     <p id="progress-text" class="text-sm text-gray-500 mt-2">Uploading...</p>
+                    <div id="upload-details" class="mt-2 text-xs text-gray-400"></div>
+                </div>
+                <div id="upload-results" class="mt-6 hidden">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Upload Results:</h4>
+                    <div id="results-list" class="space-y-2"></div>
+                    <div class="mt-4 flex space-x-2">
+                        <a href="{{ url_for('logs_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                            <i class="fas fa-file-alt mr-2"></i>
+                            View Logs
+                        </a>
+                        <button id="upload-another-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-plus mr-2"></i>
+                            Upload More
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -46,7 +67,277 @@
 
 {% block scripts %}
 <script>
-    // Upload functionality will be added in future tasks
+// Enhanced file upload functionality for LogSage AI
+document.addEventListener('DOMContentLoaded', function() {
     console.log('Upload page loaded');
+    
+    let selectedFiles = [];
+    const maxFiles = 10;
+    
+    // Initialize upload functionality
+    initializeUpload();
+    
+    function initializeUpload() {
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadAnotherBtn = document.getElementById('upload-another-btn');
+        
+        if (uploadBtn) {
+            uploadBtn.addEventListener('click', handleUpload);
+        }
+        
+        if (uploadAnotherBtn) {
+            uploadAnotherBtn.addEventListener('click', resetUpload);
+        }
+        
+        // Override the file handling from main.js
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) {
+            fileInput.addEventListener('change', handleFileSelection);
+        }
+        
+        // Enhanced drag and drop
+        const dropZone = document.getElementById('drop-zone');
+        if (dropZone) {
+            dropZone.addEventListener('drop', handleFileDrop);
+        }
+    }
+    
+    function handleFileSelection(e) {
+        const files = Array.from(e.target.files);
+        processSelectedFiles(files);
+    }
+    
+    function handleFileDrop(e) {
+        e.preventDefault();
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.classList.remove('drop-zone-active');
+        const files = Array.from(e.dataTransfer.files);
+        processSelectedFiles(files);
+    }
+    
+    function processSelectedFiles(files) {
+        // Reset previous selections
+        selectedFiles = [];
+        
+        // Validate and add files
+        const validFiles = files.slice(0, maxFiles).filter(validateFile);
+        selectedFiles = validFiles;
+        
+        if (selectedFiles.length > 0) {
+            displaySelectedFiles();
+        } else {
+            hideFileList();
+        }
+        
+        if (files.length > maxFiles) {
+            window.LogSage.utils.showNotification(`Only the first ${maxFiles} files were selected. Maximum allowed is ${maxFiles} files.`, 'warning');
+        }
+    }
+    
+    function validateFile(file) {
+        // File size check
+        if (file.size > window.LogSage.CONFIG.MAX_FILE_SIZE) {
+            window.LogSage.utils.showNotification(`File "${file.name}" is too large. Maximum size is ${window.LogSage.utils.formatFileSize(window.LogSage.CONFIG.MAX_FILE_SIZE)}.`, 'error');
+            return false;
+        }
+        
+        // File type check
+        const extension = '.' + file.name.split('.').pop().toLowerCase();
+        if (!window.LogSage.CONFIG.ALLOWED_FILE_TYPES.includes(extension)) {
+            window.LogSage.utils.showNotification(`File type "${extension}" is not supported for "${file.name}".`, 'error');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function displaySelectedFiles() {
+        const fileList = document.getElementById('file-list');
+        const selectedFilesContainer = document.getElementById('selected-files');
+        
+        if (!fileList || !selectedFilesContainer) return;
+        
+        fileList.classList.remove('hidden');
+        selectedFilesContainer.innerHTML = '';
+        
+        selectedFiles.forEach((file, index) => {
+            const fileItem = document.createElement('li');
+            fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border';
+            fileItem.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-file-alt text-blue-500"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium text-gray-900">${file.name}</div>
+                        <div class="text-xs text-gray-500">${window.LogSage.utils.formatFileSize(file.size)}</div>
+                    </div>
+                </div>
+                <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 p-1">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            selectedFilesContainer.appendChild(fileItem);
+        });
+    }
+    
+    function hideFileList() {
+        const fileList = document.getElementById('file-list');
+        if (fileList) {
+            fileList.classList.add('hidden');
+        }
+    }
+    
+    window.removeFile = function(index) {
+        selectedFiles.splice(index, 1);
+        if (selectedFiles.length > 0) {
+            displaySelectedFiles();
+        } else {
+            hideFileList();
+        }
+    };
+    
+    async function handleUpload() {
+        if (selectedFiles.length === 0) {
+            window.LogSage.utils.showNotification('Please select files to upload.', 'warning');
+            return;
+        }
+        
+        const uploadBtn = document.getElementById('upload-btn');
+        const progressContainer = document.getElementById('upload-progress');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const uploadDetails = document.getElementById('upload-details');
+        
+        // Show progress and disable upload button
+        progressContainer.classList.remove('hidden');
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
+        
+        const results = [];
+        let uploadedCount = 0;
+        
+        try {
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const progress = Math.round(((i) / selectedFiles.length) * 100);
+                
+                // Update progress
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `Uploading file ${i + 1} of ${selectedFiles.length}: ${file.name}`;
+                uploadDetails.textContent = `Processing ${file.name} (${window.LogSage.utils.formatFileSize(file.size)})`;
+                
+                try {
+                    const result = await uploadSingleFile(file);
+                    results.push({ file: file.name, success: true, result });
+                    uploadedCount++;
+                    window.LogSage.utils.showNotification(`Successfully uploaded: ${file.name}`, 'success');
+                } catch (error) {
+                    results.push({ file: file.name, success: false, error: error.message });
+                    window.LogSage.utils.showNotification(`Failed to upload ${file.name}: ${error.message}`, 'error');
+                }
+            }
+            
+            // Complete progress
+            progressBar.style.width = '100%';
+            progressText.textContent = `Upload complete! ${uploadedCount}/${selectedFiles.length} files uploaded successfully.`;
+            uploadDetails.textContent = 'All files processed.';
+            
+            // Show results
+            displayResults(results);
+            
+        } catch (error) {
+            window.LogSage.utils.showNotification(`Upload failed: ${error.message}`, 'error');
+        } finally {
+            // Re-enable upload button
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Upload Files';
+            
+            // Hide progress after delay
+            setTimeout(() => {
+                progressContainer.classList.add('hidden');
+                progressBar.style.width = '0%';
+            }, 3000);
+        }
+    }
+    
+    async function uploadSingleFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
+        
+        return await response.json();
+    }
+    
+    function displayResults(results) {
+        const resultsContainer = document.getElementById('upload-results');
+        const resultsList = document.getElementById('results-list');
+        
+        if (!resultsContainer || !resultsList) return;
+        
+        resultsContainer.classList.remove('hidden');
+        resultsList.innerHTML = '';
+        
+        results.forEach(result => {
+            const resultItem = document.createElement('div');
+            resultItem.className = `p-3 rounded-lg border ${result.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+            
+            if (result.success) {
+                resultItem.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <div>
+                            <div class="text-sm font-medium text-green-900">${result.file}</div>
+                            <div class="text-xs text-green-700">File ID: ${result.result.file_id || 'N/A'}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultItem.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                        <div>
+                            <div class="text-sm font-medium text-red-900">${result.file}</div>
+                            <div class="text-xs text-red-700">Error: ${result.error}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultsList.appendChild(resultItem);
+        });
+    }
+    
+    function resetUpload() {
+        // Reset all upload states
+        selectedFiles = [];
+        
+        // Hide all sections
+        document.getElementById('file-list').classList.add('hidden');
+        document.getElementById('upload-progress').classList.add('hidden');
+        document.getElementById('upload-results').classList.add('hidden');
+        
+        // Reset file input
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        
+        // Reset progress bar
+        const progressBar = document.getElementById('progress-bar');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+        }
+    }
+});
 </script>
 {% endblock %}

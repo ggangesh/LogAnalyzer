@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+
+{% block title %}Data Visualization - LogSage AI{% endblock %}
+
+{% block content %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Data Visualization</h1>
+        <p class="text-gray-600 mb-4">Interactive charts and graphs for log data analysis</p>
+    </div>
+
+    <!-- File Selection Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Select Data Source</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="fileSelect" class="block text-sm font-medium text-gray-700 mb-2">Log File</label>
+                <select id="fileSelect" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                    <option value="">Select a log file...</option>
+                </select>
+            </div>
+            <div>
+                <label for="timeRange" class="block text-sm font-medium text-gray-700 mb-2">Time Range</label>
+                <select id="timeRange" class="bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
+                    <option value="last_24h">Last 24 Hours</option>
+                    <option value="last_7d">Last 7 Days</option>
+                    <option value="last_30d">Last 30 Days</option>
+                    <option value="today">Today</option>
+                    <option value="this_week">This Week</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-4 flex space-x-4">
+            <button id="refreshData" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh Data
+            </button>
+            <button id="generateCharts" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
+                <i class="fas fa-chart-bar mr-2"></i>Generate Charts
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <div class="flex items-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+            <span class="text-blue-700">Generating charts...</span>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div id="chartsContainer" class="hidden">
+        <!-- Log Level Distribution Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Log Level Distribution</h2>
+            <div class="relative h-64 md:h-80">
+                <canvas id="logLevelChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Timeline Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Log Activity Timeline</h2>
+            <div class="relative h-64 md:h-80">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Source Distribution Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Log Sources Distribution</h2>
+            <div class="relative h-64 md:h-80">
+                <canvas id="sourceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Error Rate Trend Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Error Rate Trend</h2>
+            <div class="relative h-64 md:h-80">
+                <canvas id="errorTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Anomaly Distribution Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Anomaly Distribution</h2>
+            <div class="relative h-64 md:h-80">
+                <canvas id="anomalyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Sources Chart -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Top Active Sources</h2>
+            <div class="relative h-64 md:h-80">
+                <canvas id="topSourcesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    <div id="errorDisplay" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+            <span id="errorMessage" class="text-red-700"></span>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div id="exportSection" class="hidden bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Export Options</h2>
+        <div class="flex flex-wrap gap-4">
+            <button id="exportPNG" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md transition-colors">
+                <i class="fas fa-image mr-2"></i>Export as PNG
+            </button>
+            <button id="exportPDF" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors">
+                <i class="fas fa-file-pdf mr-2"></i>Export as PDF
+            </button>
+            <button id="exportData" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
+                <i class="fas fa-download mr-2"></i>Export Data
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variables
+let currentFileId = '';
+let chartInstances = {};
+
+// Chart.js default configuration
+Chart.defaults.responsive = true;
+Chart.defaults.maintainAspectRatio = false;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadFiles();
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    document.getElementById('refreshData').addEventListener('click', loadFiles);
+    document.getElementById('generateCharts').addEventListener('click', generateCharts);
+    document.getElementById('fileSelect').addEventListener('change', handleFileSelection);
+    document.getElementById('exportPNG').addEventListener('click', () => exportCharts('png'));
+    document.getElementById('exportPDF').addEventListener('click', () => exportCharts('pdf'));
+    document.getElementById('exportData').addEventListener('click', exportData);
+}
+
+async function loadFiles() {
+    try {
+        // Demo files for MVP
+        const fileSelect = document.getElementById('fileSelect');
+        fileSelect.innerHTML = '<option value="">Select a log file...</option>';
+        
+        const demoFiles = [
+            { id: 'demo_1', name: 'application.log (2.5MB)' },
+            { id: 'demo_2', name: 'error.log (1.2MB)' },
+            { id: 'demo_3', name: 'access.log (5.8MB)' },
+            { id: 'demo_4', name: 'system.log (3.1MB)' }
+        ];
+        
+        demoFiles.forEach(file => {
+            const option = document.createElement('option');
+            option.value = file.id;
+            option.textContent = file.name;
+            fileSelect.appendChild(option);
+        });
+        
+    } catch (error) {
+        console.error('Error loading files:', error);
+        showError('Failed to load files');
+    }
+}
+
+function handleFileSelection() {
+    currentFileId = document.getElementById('fileSelect').value;
+}
+
+async function generateCharts() {
+    if (!currentFileId) {
+        showError('Please select a log file first');
+        return;
+    }
+    
+    showLoading();
+    hideError();
+    
+    try {
+        // Generate demo data for charts
+        const chartData = await generateDemoChartData();
+        
+        // Clear existing charts
+        destroyExistingCharts();
+        
+        // Create all charts
+        createLogLevelChart(chartData.logLevels);
+        createTimelineChart(chartData.timeline);
+        createSourceChart(chartData.sources);
+        createErrorTrendChart(chartData.errorTrend);
+        createAnomalyChart(chartData.anomalies);
+        createTopSourcesChart(chartData.topSources);
+        
+        // Show charts container and export options
+        document.getElementById('chartsContainer').classList.remove('hidden');
+        document.getElementById('exportSection').classList.remove('hidden');
+        
+    } catch (error) {
+        console.error('Error generating charts:', error);
+        showError('Failed to generate charts');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function generateDemoChartData() {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const timeRange = document.getElementById('timeRange').value;
+    const baseCount = Math.floor(Math.random() * 10000) + 5000;
+    
+    return {
+        logLevels: {
+            labels: ['Info', 'Warning', 'Error', 'Debug', 'Critical'],
+            data: [
+                Math.floor(baseCount * 0.6),
+                Math.floor(baseCount * 0.2),
+                Math.floor(baseCount * 0.1),
+                Math.floor(baseCount * 0.08),
+                Math.floor(baseCount * 0.02)
+            ],
+            colors: ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6']
+        },
+        timeline: {
+            labels: generateTimeLabels(timeRange),
+            data: generateTimelineData(timeRange)
+        },
+        sources: {
+            labels: ['Application', 'Database', 'API', 'Authentication', 'Cache'],
+            data: [35, 25, 20, 12, 8],
+            colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
+        },
+        errorTrend: {
+            labels: generateTimeLabels(timeRange),
+            data: generateErrorTrendData(timeRange)
+        },
+        anomalies: {
+            labels: ['Volume Spike', 'Error Rate Spike', 'Unusual Pattern', 'Time Gap', 'Performance Issue'],
+            data: [
+                Math.floor(Math.random() * 20) + 5,
+                Math.floor(Math.random() * 15) + 3,
+                Math.floor(Math.random() * 10) + 2,
+                Math.floor(Math.random() * 8) + 1,
+                Math.floor(Math.random() * 12) + 4
+            ],
+            colors: ['#ef4444', '#f59e0b', '#8b5cf6', '#6b7280', '#f97316']
+        },
+        topSources: {
+            labels: ['app.server.1', 'db.primary', 'api.gateway', 'auth.service', 'cache.redis'],
+            data: [
+                Math.floor(Math.random() * 3000) + 1000,
+                Math.floor(Math.random() * 2500) + 800,
+                Math.floor(Math.random() * 2000) + 600,
+                Math.floor(Math.random() * 1500) + 400,
+                Math.floor(Math.random() * 1000) + 200
+            ]
+        }
+    };
+}
+
+function generateTimeLabels(timeRange) {
+    const labels = [];
+    const now = new Date();
+    
+    switch(timeRange) {
+        case 'last_24h':
+            for (let i = 23; i >= 0; i--) {
+                const time = new Date(now - i * 60 * 60 * 1000);
+                labels.push(time.getHours() + ':00');
+            }
+            break;
+        case 'last_7d':
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(now - i * 24 * 60 * 60 * 1000);
+                labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+            }
+            break;
+        case 'last_30d':
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(now - i * 24 * 60 * 60 * 1000);
+                labels.push(date.getDate().toString());
+            }
+            break;
+        default:
+            labels.push(...['00:00', '04:00', '08:00', '12:00', '16:00', '20:00']);
+    }
+    
+    return labels;
+}
+
+function generateTimelineData(timeRange) {
+    const length = timeRange === 'last_24h' ? 24 : timeRange === 'last_7d' ? 7 : 30;
+    return Array.from({length}, () => Math.floor(Math.random() * 500) + 100);
+}
+
+function generateErrorTrendData(timeRange) {
+    const length = timeRange === 'last_24h' ? 24 : timeRange === 'last_7d' ? 7 : 30;
+    return Array.from({length}, () => Math.floor(Math.random() * 50) + 5);
+}
+
+function createLogLevelChart(data) {
+    const ctx = document.getElementById('logLevelChart').getContext('2d');
+    chartInstances.logLevel = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.data,
+                backgroundColor: data.colors,
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.raw / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.raw.toLocaleString()} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createTimelineChart(data) {
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+    chartInstances.timeline = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Log Entries',
+                data: data.data,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Logs'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function createSourceChart(data) {
+    const ctx = document.getElementById('sourceChart').getContext('2d');
+    chartInstances.source = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.data,
+                backgroundColor: data.colors,
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createErrorTrendChart(data) {
+    const ctx = document.getElementById('errorTrendChart').getContext('2d');
+    chartInstances.errorTrend = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Error Count',
+                data: data.data,
+                backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                borderColor: '#ef4444',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Errors'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function createAnomalyChart(data) {
+    const ctx = document.getElementById('anomalyChart').getContext('2d');
+    chartInstances.anomaly = new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.data,
+                backgroundColor: data.colors.map(color => color + '80'), // Add transparency
+                borderColor: data.colors,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createTopSourcesChart(data) {
+    const ctx = document.getElementById('topSourcesChart').getContext('2d');
+    chartInstances.topSources = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Log Count',
+                data: data.data,
+                backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                borderColor: '#10b981',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Logs'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function destroyExistingCharts() {
+    Object.values(chartInstances).forEach(chart => {
+        if (chart) {
+            chart.destroy();
+        }
+    });
+    chartInstances = {};
+}
+
+function showLoading() {
+    document.getElementById('loadingState').classList.remove('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingState').classList.add('hidden');
+}
+
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorDisplay').classList.remove('hidden');
+}
+
+function hideError() {
+    document.getElementById('errorDisplay').classList.add('hidden');
+}
+
+function exportCharts(format) {
+    if (format === 'png') {
+        // Export individual charts as PNG
+        Object.keys(chartInstances).forEach(chartKey => {
+            const chart = chartInstances[chartKey];
+            if (chart) {
+                const url = chart.toBase64Image();
+                const link = document.createElement('a');
+                link.download = `logsage_${chartKey}_chart.png`;
+                link.href = url;
+                link.click();
+            }
+        });
+    } else if (format === 'pdf') {
+        alert('PDF export feature coming soon!');
+    }
+}
+
+function exportData() {
+    // Export chart data as JSON
+    const exportData = {
+        file_id: currentFileId,
+        time_range: document.getElementById('timeRange').value,
+        generated_at: new Date().toISOString(),
+        charts_data: {
+            // This would contain the actual chart data
+            message: "Chart data export functionality"
+        }
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `logsage_charts_data_${currentFileId}_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+}
+</script>
+{% endblock %}

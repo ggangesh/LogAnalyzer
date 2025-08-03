@@ -15,19 +15,632 @@
         </p>
     </div>
 
-    <!-- Log Files List -->
-    <div class="bg-white shadow rounded-lg">
+    <!-- File Selection -->
+    <div class="bg-white shadow rounded-lg mb-6">
         <div class="px-4 py-5 sm:p-6">
-            <div class="text-center py-12">
-                <i class="fas fa-file-alt text-gray-400 text-4xl mb-4"></i>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No log files uploaded yet</h3>
-                <p class="text-sm text-gray-500 mb-4">Upload some log files to start analyzing them</p>
-                <a href="{{ url_for('upload_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Select Log File</h3>
+                <a href="{{ url_for('upload_page') }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
                     <i class="fas fa-upload mr-2"></i>
-                    Upload Files
+                    Upload More
                 </a>
+            </div>
+            
+            <div id="file-selection">
+                <div id="files-loading" class="text-center py-8">
+                    <div class="loading-spinner mx-auto mb-2"></div>
+                    <p class="text-sm text-gray-500">Loading uploaded files...</p>
+                </div>
+                
+                <div id="files-list" class="hidden">
+                    <select id="file-selector" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                        <option value="">Select a log file to analyze...</option>
+                    </select>
+                </div>
+                
+                <div id="no-files" class="hidden text-center py-8">
+                    <i class="fas fa-file-alt text-gray-400 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No log files uploaded yet</h3>
+                    <p class="text-sm text-gray-500 mb-4">Upload some log files to start analyzing them</p>
+                    <a href="{{ url_for('upload_page') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                        <i class="fas fa-upload mr-2"></i>
+                        Upload Files
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Viewer -->
+    <div id="log-viewer" class="hidden">
+        <!-- Filters -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Filters</h3>
+                
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <!-- Time Range Filter -->
+                    <div>
+                        <label for="time-filter" class="block text-sm font-medium text-gray-700 mb-1">Time Range</label>
+                        <select id="time-filter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                            <option value="">All Time</option>
+                            <option value="last_1h">Last 1 Hour</option>
+                            <option value="last_24h">Last 24 Hours</option>
+                            <option value="last_7d">Last 7 Days</option>
+                            <option value="last_30d">Last 30 Days</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="this_week">This Week</option>
+                            <option value="this_month">This Month</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Log Level Filter -->
+                    <div>
+                        <label for="level-filter" class="block text-sm font-medium text-gray-700 mb-1">Log Level</label>
+                        <select id="level-filter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                            <option value="">All Levels</option>
+                            <option value="DEBUG">Debug</option>
+                            <option value="INFO">Info</option>
+                            <option value="WARNING">Warning</option>
+                            <option value="ERROR">Error</option>
+                            <option value="CRITICAL">Critical</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Search Filter -->
+                    <div>
+                        <label for="search-filter" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                        <input type="text" id="search-filter" placeholder="Search in messages..." class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex items-end space-x-2">
+                        <button id="apply-filters" class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                            <i class="fas fa-filter mr-2"></i>
+                            Apply
+                        </button>
+                        <button id="clear-filters" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Custom Date Range -->
+                <div id="custom-date-range" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Start Date & Time</label>
+                            <input type="datetime-local" id="start-date" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">End Date & Time</label>
+                            <input type="datetime-local" id="end-date" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Statistics -->
+        <div id="log-stats" class="bg-white shadow rounded-lg mb-6 hidden">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Statistics</h3>
+                <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="total-logs">0</div>
+                        <div class="text-sm text-gray-500">Total Logs</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-600" id="error-logs">0</div>
+                        <div class="text-sm text-gray-500">Errors</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-yellow-600" id="warning-logs">0</div>
+                        <div class="text-sm text-gray-500">Warnings</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600" id="info-logs">0</div>
+                        <div class="text-sm text-gray-500">Info</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Table -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Log Entries</h3>
+                    <div class="flex items-center space-x-2">
+                        <button id="export-logs" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-download mr-2"></i>
+                            Export
+                        </button>
+                        <button id="refresh-logs" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="logs-loading" class="text-center py-8">
+                    <div class="loading-spinner mx-auto mb-2"></div>
+                    <p class="text-sm text-gray-500">Loading log entries...</p>
+                </div>
+                
+                <div id="logs-table-container" class="hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Log entries will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div id="pagination" class="mt-6 flex items-center justify-between">
+                        <div class="text-sm text-gray-700">
+                            Showing <span id="showing-from">1</span> to <span id="showing-to">10</span> of <span id="total-entries">0</span> entries
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="prev-page" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Previous
+                            </button>
+                            <span id="page-info" class="px-3 py-2 text-sm text-gray-700">Page 1 of 1</span>
+                            <button id="next-page" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="no-logs" class="hidden text-center py-8">
+                    <i class="fas fa-search text-gray-400 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No log entries found</h3>
+                    <p class="text-sm text-gray-500">Try adjusting your filters or select a different file</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Log Viewer JavaScript for LogSage AI
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Log viewer loaded');
+    
+    let currentFileId = null;
+    let currentPage = 1;
+    const pageSize = 25;
+    let currentFilters = {};
+    
+    // Initialize log viewer
+    initializeLogViewer();
+    
+    function initializeLogViewer() {
+        loadUploadedFiles();
+        setupEventListeners();
+    }
+    
+    function setupEventListeners() {
+        // File selector
+        const fileSelector = document.getElementById('file-selector');
+        if (fileSelector) {
+            fileSelector.addEventListener('change', handleFileSelection);
+        }
+        
+        // Filter controls
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        const timeFilter = document.getElementById('time-filter');
+        const searchFilter = document.getElementById('search-filter');
+        const refreshBtn = document.getElementById('refresh-logs');
+        const exportBtn = document.getElementById('export-logs');
+        
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', applyFilters);
+        }
+        
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', clearFilters);
+        }
+        
+        if (timeFilter) {
+            timeFilter.addEventListener('change', handleTimeFilterChange);
+        }
+        
+        if (searchFilter) {
+            searchFilter.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyFilters();
+                }
+            });
+        }
+        
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => loadLogs(currentFileId));
+        }
+        
+        if (exportBtn) {
+            exportBtn.addEventListener('click', exportLogs);
+        }
+        
+        // Pagination
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => changePage(currentPage - 1));
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => changePage(currentPage + 1));
+        }
+    }
+    
+    async function loadUploadedFiles() {
+        const filesLoading = document.getElementById('files-loading');
+        const filesList = document.getElementById('files-list');
+        const noFiles = document.getElementById('no-files');
+        const fileSelector = document.getElementById('file-selector');
+        
+        try {
+            // TODO: Replace with actual API call to get uploaded files
+            // For now, simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Mock data - replace with actual API call
+            const mockFiles = [
+                { id: 'file1', name: 'application.log', size: 1024000, uploaded_at: '2024-01-03T10:00:00Z' },
+                { id: 'file2', name: 'error.log', size: 512000, uploaded_at: '2024-01-03T09:30:00Z' },
+                { id: 'file3', name: 'access.log', size: 2048000, uploaded_at: '2024-01-03T09:00:00Z' }
+            ];
+            
+            filesLoading.classList.add('hidden');
+            
+            if (mockFiles.length > 0) {
+                filesList.classList.remove('hidden');
+                
+                // Clear existing options except the first one
+                fileSelector.innerHTML = '<option value="">Select a log file to analyze...</option>';
+                
+                // Add file options
+                mockFiles.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file.id;
+                    option.textContent = `${file.name} (${window.LogSage.utils.formatFileSize(file.size)}) - ${window.LogSage.utils.formatDate(file.uploaded_at)}`;
+                    fileSelector.appendChild(option);
+                });
+            } else {
+                noFiles.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error loading files:', error);
+            filesLoading.classList.add('hidden');
+            noFiles.classList.remove('hidden');
+            window.LogSage.utils.showNotification('Failed to load uploaded files.', 'error');
+        }
+    }
+    
+    function handleFileSelection(e) {
+        const fileId = e.target.value;
+        
+        if (fileId) {
+            currentFileId = fileId;
+            showLogViewer();
+            loadLogs(fileId);
+        } else {
+            hideLogViewer();
+        }
+    }
+    
+    function showLogViewer() {
+        const logViewer = document.getElementById('log-viewer');
+        if (logViewer) {
+            logViewer.classList.remove('hidden');
+        }
+    }
+    
+    function hideLogViewer() {
+        const logViewer = document.getElementById('log-viewer');
+        if (logViewer) {
+            logViewer.classList.add('hidden');
+        }
+    }
+    
+    async function loadLogs(fileId, page = 1) {
+        if (!fileId) return;
+        
+        const logsLoading = document.getElementById('logs-loading');
+        const logsTableContainer = document.getElementById('logs-table-container');
+        const noLogs = document.getElementById('no-logs');
+        const logStats = document.getElementById('log-stats');
+        
+        // Show loading state
+        logsLoading.classList.remove('hidden');
+        logsTableContainer.classList.add('hidden');
+        noLogs.classList.add('hidden');
+        logStats.classList.add('hidden');
+        
+        try {
+            // TODO: Replace with actual API calls
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Mock log data
+            const mockLogs = generateMockLogs();
+            const filteredLogs = applyFiltersToLogs(mockLogs);
+            const paginatedLogs = paginateLogs(filteredLogs, page);
+            
+            logsLoading.classList.add('hidden');
+            
+            if (filteredLogs.length > 0) {
+                displayLogs(paginatedLogs.logs);
+                updatePagination(paginatedLogs.pagination);
+                updateStatistics(filteredLogs);
+                logsTableContainer.classList.remove('hidden');
+                logStats.classList.remove('hidden');
+            } else {
+                noLogs.classList.remove('hidden');
+            }
+            
+            currentPage = page;
+            
+        } catch (error) {
+            console.error('Error loading logs:', error);
+            logsLoading.classList.add('hidden');
+            noLogs.classList.remove('hidden');
+            window.LogSage.utils.showNotification('Failed to load log entries.', 'error');
+        }
+    }
+    
+    function generateMockLogs() {
+        // Generate sample log data for demonstration
+        const levels = ['INFO', 'WARNING', 'ERROR', 'DEBUG', 'CRITICAL'];
+        const sources = ['application', 'database', 'authentication', 'api', 'frontend'];
+        const messages = [
+            'User login successful',
+            'Database connection established',
+            'API request processed',
+            'Authentication failed for user',
+            'Error processing request',
+            'Cache cleared successfully',
+            'File upload completed',
+            'Session expired',
+            'Resource not found',
+            'Server startup complete'
+        ];
+        
+        const logs = [];
+        const now = new Date();
+        
+        for (let i = 0; i < 100; i++) {
+            const timestamp = new Date(now.getTime() - (i * 60000)); // Each log 1 minute apart
+            logs.push({
+                id: i + 1,
+                timestamp: timestamp.toISOString(),
+                level: levels[Math.floor(Math.random() * levels.length)],
+                source: sources[Math.floor(Math.random() * sources.length)],
+                message: messages[Math.floor(Math.random() * messages.length)]
+            });
+        }
+        
+        return logs;
+    }
+    
+    function applyFiltersToLogs(logs) {
+        let filtered = [...logs];
+        
+        // Time filter
+        if (currentFilters.timeRange) {
+            filtered = filterByTimeRange(filtered, currentFilters.timeRange);
+        }
+        
+        // Level filter
+        if (currentFilters.level) {
+            filtered = filtered.filter(log => log.level === currentFilters.level);
+        }
+        
+        // Search filter
+        if (currentFilters.search) {
+            const searchTerm = currentFilters.search.toLowerCase();
+            filtered = filtered.filter(log => 
+                log.message.toLowerCase().includes(searchTerm) ||
+                log.source.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        return filtered;
+    }
+    
+    function filterByTimeRange(logs, timeRange) {
+        const now = new Date();
+        let startTime;
+        
+        switch (timeRange) {
+            case 'last_1h':
+                startTime = new Date(now.getTime() - (60 * 60 * 1000));
+                break;
+            case 'last_24h':
+                startTime = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+                break;
+            case 'last_7d':
+                startTime = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+                break;
+            case 'last_30d':
+                startTime = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+                break;
+            case 'today':
+                startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                break;
+            case 'yesterday':
+                startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                const endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                return logs.filter(log => {
+                    const logTime = new Date(log.timestamp);
+                    return logTime >= startTime && logTime < endTime;
+                });
+            default:
+                return logs;
+        }
+        
+        return logs.filter(log => new Date(log.timestamp) >= startTime);
+    }
+    
+    function paginateLogs(logs, page) {
+        const totalPages = Math.ceil(logs.length / pageSize);
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedLogs = logs.slice(startIndex, endIndex);
+        
+        return {
+            logs: paginatedLogs,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: logs.length,
+                startIndex: startIndex + 1,
+                endIndex: Math.min(endIndex, logs.length)
+            }
+        };
+    }
+    
+    function displayLogs(logs) {
+        const tableBody = document.getElementById('logs-table-body');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = '';
+        
+        logs.forEach(log => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            const levelClass = getLevelClass(log.level);
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${window.LogSage.utils.formatDate(log.timestamp)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${levelClass}">
+                        ${log.level}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    ${log.source}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                    <div class="max-w-xs truncate" title="${log.message}">
+                        ${log.message}
+                    </div>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function getLevelClass(level) {
+        switch (level) {
+            case 'DEBUG':
+                return 'bg-gray-100 text-gray-800';
+            case 'INFO':
+                return 'bg-blue-100 text-blue-800';
+            case 'WARNING':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'ERROR':
+                return 'bg-red-100 text-red-800';
+            case 'CRITICAL':
+                return 'bg-purple-100 text-purple-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    }
+    
+    function updatePagination(pagination) {
+        document.getElementById('showing-from').textContent = pagination.startIndex;
+        document.getElementById('showing-to').textContent = pagination.endIndex;
+        document.getElementById('total-entries').textContent = pagination.totalItems;
+        document.getElementById('page-info').textContent = `Page ${pagination.currentPage} of ${pagination.totalPages}`;
+        
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+        
+        prevBtn.disabled = pagination.currentPage <= 1;
+        nextBtn.disabled = pagination.currentPage >= pagination.totalPages;
+    }
+    
+    function updateStatistics(logs) {
+        const stats = {
+            total: logs.length,
+            info: logs.filter(log => log.level === 'INFO').length,
+            warning: logs.filter(log => log.level === 'WARNING').length,
+            error: logs.filter(log => log.level === 'ERROR').length + logs.filter(log => log.level === 'CRITICAL').length
+        };
+        
+        document.getElementById('total-logs').textContent = stats.total;
+        document.getElementById('info-logs').textContent = stats.info;
+        document.getElementById('warning-logs').textContent = stats.warning;
+        document.getElementById('error-logs').textContent = stats.error;
+    }
+    
+    function handleTimeFilterChange(e) {
+        const value = e.target.value;
+        const customDateRange = document.getElementById('custom-date-range');
+        
+        if (value === 'custom') {
+            customDateRange.classList.remove('hidden');
+        } else {
+            customDateRange.classList.add('hidden');
+        }
+    }
+    
+    function applyFilters() {
+        currentFilters = {
+            timeRange: document.getElementById('time-filter').value,
+            level: document.getElementById('level-filter').value,
+            search: document.getElementById('search-filter').value.trim()
+        };
+        
+        // Reset to first page when applying filters
+        loadLogs(currentFileId, 1);
+    }
+    
+    function clearFilters() {
+        document.getElementById('time-filter').value = '';
+        document.getElementById('level-filter').value = '';
+        document.getElementById('search-filter').value = '';
+        document.getElementById('custom-date-range').classList.add('hidden');
+        
+        currentFilters = {};
+        loadLogs(currentFileId, 1);
+    }
+    
+    function changePage(page) {
+        if (page >= 1) {
+            loadLogs(currentFileId, page);
+        }
+    }
+    
+    function exportLogs() {
+        if (!currentFileId) {
+            window.LogSage.utils.showNotification('Please select a file first.', 'warning');
+            return;
+        }
+        
+        // TODO: Implement actual export functionality
+        window.LogSage.utils.showNotification('Export functionality will be implemented.', 'info');
+    }
+});
+</script>
 {% endblock %}

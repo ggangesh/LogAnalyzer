@@ -15,15 +15,682 @@
         </p>
     </div>
 
-    <!-- Anomalies List -->
+    <!-- File Selection & Controls -->
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Anomaly Analysis</h3>
+                <div class="flex items-center space-x-2">
+                    <button id="run-detection" class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700">
+                        <i class="fas fa-search mr-2"></i>
+                        Run Detection
+                    </button>
+                    <button id="refresh-anomalies" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <!-- File Selection -->
+                <div>
+                    <label for="anomaly-file-selector" class="block text-sm font-medium text-gray-700 mb-1">Select Log File</label>
+                    <select id="anomaly-file-selector" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                        <option value="">Choose a file to analyze...</option>
+                    </select>
+                </div>
+                
+                <!-- Severity Filter -->
+                <div>
+                    <label for="severity-filter" class="block text-sm font-medium text-gray-700 mb-1">Severity Filter</label>
+                    <select id="severity-filter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                        <option value="">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anomaly Statistics -->
+    <div id="anomaly-stats" class="bg-white shadow rounded-lg mb-6 hidden">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Detection Summary</h3>
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-red-600" id="critical-anomalies">0</div>
+                    <div class="text-sm text-gray-500">Critical</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-orange-600" id="high-anomalies">0</div>
+                    <div class="text-sm text-gray-500">High</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-yellow-600" id="medium-anomalies">0</div>
+                    <div class="text-sm text-gray-500">Medium</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600" id="low-anomalies">0</div>
+                    <div class="text-sm text-gray-500">Low</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anomalies Table -->
     <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <div class="text-center py-12">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Detected Anomalies</h3>
+                <div class="flex items-center space-x-2">
+                    <button id="export-anomalies" class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-download mr-2"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+            
+            <div id="anomalies-loading" class="text-center py-8">
+                <div class="loading-spinner mx-auto mb-2"></div>
+                <p class="text-sm text-gray-500">Loading anomaly data...</p>
+            </div>
+            
+            <div id="anomalies-table-container" class="hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detected At</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="anomalies-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Anomaly entries will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="no-anomalies" class="text-center py-12">
                 <i class="fas fa-shield-alt text-gray-400 text-4xl mb-4"></i>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No anomalies detected</h3>
-                <p class="text-sm text-gray-500">Your logs are looking healthy!</p>
+                <p class="text-sm text-gray-500 mb-4">Your logs are looking healthy! Select a file and run detection to analyze for anomalies.</p>
+                <button id="get-started-detection" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700">
+                    <i class="fas fa-search mr-2"></i>
+                    Get Started with Detection
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anomaly Detail Modal -->
+    <div id="anomaly-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Anomaly Details
+                        </h3>
+                        <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="modal-content">
+                        <!-- Anomaly details will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button id="view-related-logs" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        View Related Logs
+                    </button>
+                    <button id="modal-close" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Anomaly Detection JavaScript for LogSage AI
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Anomaly detection page loaded');
+    
+    let currentFileId = null;
+    let currentAnomalies = [];
+    let selectedAnomaly = null;
+    
+    // Initialize anomaly detection
+    initializeAnomalyDetection();
+    
+    function initializeAnomalyDetection() {
+        loadUploadedFiles();
+        setupEventListeners();
+        checkInitialState();
+    }
+    
+    function setupEventListeners() {
+        // File selector
+        const fileSelector = document.getElementById('anomaly-file-selector');
+        if (fileSelector) {
+            fileSelector.addEventListener('change', handleFileSelection);
+        }
+        
+        // Control buttons
+        const runDetectionBtn = document.getElementById('run-detection');
+        const refreshBtn = document.getElementById('refresh-anomalies');
+        const exportBtn = document.getElementById('export-anomalies');
+        const getStartedBtn = document.getElementById('get-started-detection');
+        
+        if (runDetectionBtn) {
+            runDetectionBtn.addEventListener('click', runAnomalyDetection);
+        }
+        
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', refreshAnomalies);
+        }
+        
+        if (exportBtn) {
+            exportBtn.addEventListener('click', exportAnomalies);
+        }
+        
+        if (getStartedBtn) {
+            getStartedBtn.addEventListener('click', () => {
+                // Auto-select first file if available
+                const fileSelector = document.getElementById('anomaly-file-selector');
+                if (fileSelector && fileSelector.options.length > 1) {
+                    fileSelector.selectedIndex = 1;
+                    handleFileSelection({ target: fileSelector });
+                }
+            });
+        }
+        
+        // Severity filter
+        const severityFilter = document.getElementById('severity-filter');
+        if (severityFilter) {
+            severityFilter.addEventListener('change', applySeverityFilter);
+        }
+        
+        // Modal controls
+        const closeModal = document.getElementById('close-modal');
+        const modalClose = document.getElementById('modal-close');
+        const viewRelatedLogs = document.getElementById('view-related-logs');
+        
+        if (closeModal) {
+            closeModal.addEventListener('click', hideAnomalyModal);
+        }
+        
+        if (modalClose) {
+            modalClose.addEventListener('click', hideAnomalyModal);
+        }
+        
+        if (viewRelatedLogs) {
+            viewRelatedLogs.addEventListener('click', () => viewRelatedLogs(selectedAnomaly?.id));
+        }
+        
+        // Close modal on backdrop click
+        const modal = document.getElementById('anomaly-modal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    hideAnomalyModal();
+                }
+            });
+        }
+    }
+    
+    async function loadUploadedFiles() {
+        const fileSelector = document.getElementById('anomaly-file-selector');
+        if (!fileSelector) return;
+        
+        try {
+            // TODO: Replace with actual API call
+            // Mock data for demonstration
+            const mockFiles = [
+                { id: 'file1', name: 'application.log', size: 1024000 },
+                { id: 'file2', name: 'error.log', size: 512000 },
+                { id: 'file3', name: 'access.log', size: 2048000 }
+            ];
+            
+            // Clear existing options except the first one
+            fileSelector.innerHTML = '<option value="">Choose a file to analyze...</option>';
+            
+            // Add file options
+            mockFiles.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file.id;
+                option.textContent = `${file.name} (${window.LogSage.utils.formatFileSize(file.size)})`;
+                fileSelector.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error('Error loading files:', error);
+            window.LogSage.utils.showNotification('Failed to load uploaded files.', 'error');
+        }
+    }
+    
+    function handleFileSelection(e) {
+        const fileId = e.target.value;
+        currentFileId = fileId;
+        
+        if (fileId) {
+            // Enable run detection button
+            const runDetectionBtn = document.getElementById('run-detection');
+            if (runDetectionBtn) {
+                runDetectionBtn.disabled = false;
+            }
+            
+            // Auto-load existing anomalies if available
+            loadExistingAnomalies(fileId);
+        } else {
+            // Disable controls and reset view
+            resetAnomalyView();
+        }
+    }
+    
+    async function loadExistingAnomalies(fileId) {
+        const anomaliesLoading = document.getElementById('anomalies-loading');
+        const noAnomalies = document.getElementById('no-anomalies');
+        
+        anomaliesLoading.classList.remove('hidden');
+        noAnomalies.classList.add('hidden');
+        
+        try {
+            // TODO: Replace with actual API call to get existing anomalies
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Mock: sometimes return existing anomalies
+            const hasExistingAnomalies = Math.random() > 0.5;
+            
+            if (hasExistingAnomalies) {
+                const mockAnomalies = generateMockAnomalies();
+                displayAnomalies(mockAnomalies);
+            } else {
+                anomaliesLoading.classList.add('hidden');
+                noAnomalies.classList.remove('hidden');
+            }
+            
+        } catch (error) {
+            console.error('Error loading existing anomalies:', error);
+            anomaliesLoading.classList.add('hidden');
+            noAnomalies.classList.remove('hidden');
+        }
+    }
+    
+    async function runAnomalyDetection() {
+        if (!currentFileId) {
+            window.LogSage.utils.showNotification('Please select a file first.', 'warning');
+            return;
+        }
+        
+        const runDetectionBtn = document.getElementById('run-detection');
+        const anomaliesLoading = document.getElementById('anomalies-loading');
+        const noAnomalies = document.getElementById('no-anomalies');
+        const tableContainer = document.getElementById('anomalies-table-container');
+        
+        // Show loading state
+        runDetectionBtn.disabled = true;
+        runDetectionBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Running Detection...';
+        
+        anomaliesLoading.classList.remove('hidden');
+        noAnomalies.classList.add('hidden');
+        tableContainer.classList.add('hidden');
+        
+        try {
+            // TODO: Replace with actual API call to run anomaly detection
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate detection time
+            
+            // Generate mock anomalies
+            const detectedAnomalies = generateMockAnomalies();
+            
+            if (detectedAnomalies.length > 0) {
+                displayAnomalies(detectedAnomalies);
+                window.LogSage.utils.showNotification(`Detection complete! Found ${detectedAnomalies.length} anomalies.`, 'success');
+            } else {
+                anomaliesLoading.classList.add('hidden');
+                noAnomalies.classList.remove('hidden');
+                window.LogSage.utils.showNotification('Detection complete! No anomalies found.', 'success');
+            }
+            
+        } catch (error) {
+            console.error('Error running anomaly detection:', error);
+            anomaliesLoading.classList.add('hidden');
+            noAnomalies.classList.remove('hidden');
+            window.LogSage.utils.showNotification('Failed to run anomaly detection.', 'error');
+        } finally {
+            // Reset button state
+            runDetectionBtn.disabled = false;
+            runDetectionBtn.innerHTML = '<i class="fas fa-search mr-2"></i>Run Detection';
+        }
+    }
+    
+    function generateMockAnomalies() {
+        const severities = ['critical', 'high', 'medium', 'low'];
+        const types = ['Volume Spike', 'Error Rate Spike', 'Unusual Pattern', 'Time Gap', 'Performance Degradation'];
+        const descriptions = [
+            'Detected a significant increase in error rate over the last hour',
+            'Unusual volume of requests detected in authentication service',
+            'Abnormal response time pattern in database queries',
+            'Missing log entries for extended period indicating potential system issue',
+            'Critical error threshold exceeded in payment processing',
+            'Unexpected traffic pattern from specific IP range',
+            'Memory usage anomaly detected in application server',
+            'Unusual frequency of failed login attempts'
+        ];
+        
+        const anomalies = [];
+        const now = new Date();
+        const anomalyCount = Math.floor(Math.random() * 8) + 3; // 3-10 anomalies
+        
+        for (let i = 0; i < anomalyCount; i++) {
+            const detectedAt = new Date(now.getTime() - (Math.random() * 24 * 60 * 60 * 1000)); // Last 24 hours
+            anomalies.push({
+                id: `anomaly_${i + 1}`,
+                severity: severities[Math.floor(Math.random() * severities.length)],
+                type: types[Math.floor(Math.random() * types.length)],
+                detectedAt: detectedAt.toISOString(),
+                description: descriptions[Math.floor(Math.random() * descriptions.length)],
+                confidence: Math.round((Math.random() * 30 + 70)), // 70-100%
+                affectedLogs: Math.floor(Math.random() * 500) + 10,
+                details: {
+                    timeRange: `${Math.floor(Math.random() * 60) + 10} minutes`,
+                    threshold: `${Math.floor(Math.random() * 50) + 50}%`,
+                    impact: severities[Math.floor(Math.random() * severities.length)]
+                }
+            });
+        }
+        
+        // Sort by severity and detected time
+        return anomalies.sort((a, b) => {
+            const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+            const severityDiff = severityOrder[a.severity] - severityOrder[b.severity];
+            if (severityDiff !== 0) return severityDiff;
+            return new Date(b.detectedAt) - new Date(a.detectedAt);
+        });
+    }
+    
+    function displayAnomalies(anomalies) {
+        currentAnomalies = anomalies;
+        
+        const anomaliesLoading = document.getElementById('anomalies-loading');
+        const tableContainer = document.getElementById('anomalies-table-container');
+        const noAnomalies = document.getElementById('no-anomalies');
+        const stats = document.getElementById('anomaly-stats');
+        
+        anomaliesLoading.classList.add('hidden');
+        
+        if (anomalies.length > 0) {
+            updateAnomalyStatistics(anomalies);
+            populateAnomaliesTable(anomalies);
+            
+            tableContainer.classList.remove('hidden');
+            stats.classList.remove('hidden');
+            noAnomalies.classList.add('hidden');
+        } else {
+            tableContainer.classList.add('hidden');
+            stats.classList.add('hidden');
+            noAnomalies.classList.remove('hidden');
+        }
+    }
+    
+    function updateAnomalyStatistics(anomalies) {
+        const stats = {
+            critical: anomalies.filter(a => a.severity === 'critical').length,
+            high: anomalies.filter(a => a.severity === 'high').length,
+            medium: anomalies.filter(a => a.severity === 'medium').length,
+            low: anomalies.filter(a => a.severity === 'low').length
+        };
+        
+        document.getElementById('critical-anomalies').textContent = stats.critical;
+        document.getElementById('high-anomalies').textContent = stats.high;
+        document.getElementById('medium-anomalies').textContent = stats.medium;
+        document.getElementById('low-anomalies').textContent = stats.low;
+    }
+    
+    function populateAnomaliesTable(anomalies) {
+        const tableBody = document.getElementById('anomalies-table-body');
+        if (!tableBody) return;
+        
+        tableBody.innerHTML = '';
+        
+        anomalies.forEach(anomaly => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 cursor-pointer';
+            row.onclick = () => showAnomalyDetails(anomaly);
+            
+            const severityClass = getSeverityClass(anomaly.severity);
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${severityClass}">
+                        ${anomaly.severity.toUpperCase()}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${anomaly.type}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    ${window.LogSage.utils.formatDate(anomaly.detectedAt)}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                    <div class="max-w-xs truncate" title="${anomaly.description}">
+                        ${anomaly.description}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <div class="flex items-center">
+                        <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
+                            <div class="h-2 rounded-full ${getConfidenceColor(anomaly.confidence)}" style="width: ${anomaly.confidence}%"></div>
+                        </div>
+                        <span class="text-xs font-medium">${anomaly.confidence}%</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick="event.stopPropagation(); showAnomalyDetails('${anomaly.id}')" class="text-primary-600 hover:text-primary-900 mr-3">
+                        View Details
+                    </button>
+                    <button onclick="event.stopPropagation(); viewRelatedLogsFunction('${anomaly.id}')" class="text-indigo-600 hover:text-indigo-900">
+                        View Logs
+                    </button>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function getSeverityClass(severity) {
+        switch (severity) {
+            case 'critical':
+                return 'bg-red-100 text-red-800';
+            case 'high':
+                return 'bg-orange-100 text-orange-800';
+            case 'medium':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'low':
+                return 'bg-blue-100 text-blue-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    }
+    
+    function getConfidenceColor(confidence) {
+        if (confidence >= 90) return 'bg-green-600';
+        if (confidence >= 75) return 'bg-yellow-500';
+        if (confidence >= 60) return 'bg-orange-500';
+        return 'bg-red-500';
+    }
+    
+    function showAnomalyDetails(anomalyIdOrObject) {
+        let anomaly;
+        if (typeof anomalyIdOrObject === 'string') {
+            anomaly = currentAnomalies.find(a => a.id === anomalyIdOrObject);
+        } else {
+            anomaly = anomalyIdOrObject;
+        }
+        
+        if (!anomaly) return;
+        
+        selectedAnomaly = anomaly;
+        
+        const modalContent = document.getElementById('modal-content');
+        const modal = document.getElementById('anomaly-modal');
+        
+        if (!modalContent || !modal) return;
+        
+        const severityClass = getSeverityClass(anomaly.severity);
+        
+        modalContent.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Anomaly Information</h4>
+                    <dl class="space-y-3">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Severity</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${severityClass}">
+                                    ${anomaly.severity.toUpperCase()}
+                                </span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${anomaly.type}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Detected At</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${window.LogSage.utils.formatDate(anomaly.detectedAt)}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Confidence</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${anomaly.confidence}%</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Affected Logs</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${anomaly.affectedLogs} entries</dd>
+                        </div>
+                    </dl>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Detection Details</h4>
+                    <dl class="space-y-3">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Time Range</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${anomaly.details.timeRange}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Threshold Exceeded</dt>
+                            <dd class="mt-1 text-sm text-gray-900">${anomaly.details.threshold}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Impact Level</dt>
+                            <dd class="mt-1 text-sm text-gray-900 capitalize">${anomaly.details.impact}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <h4 class="text-lg font-medium text-gray-900 mb-2">Description</h4>
+                <p class="text-sm text-gray-700">${anomaly.description}</p>
+            </div>
+        `;
+        
+        modal.classList.remove('hidden');
+    }
+    
+    function hideAnomalyModal() {
+        const modal = document.getElementById('anomaly-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+        selectedAnomaly = null;
+    }
+    
+    function applySeverityFilter() {
+        const severityFilter = document.getElementById('severity-filter');
+        const selectedSeverity = severityFilter ? severityFilter.value : '';
+        
+        let filteredAnomalies = currentAnomalies;
+        
+        if (selectedSeverity) {
+            filteredAnomalies = currentAnomalies.filter(anomaly => anomaly.severity === selectedSeverity);
+        }
+        
+        populateAnomaliesTable(filteredAnomalies);
+        updateAnomalyStatistics(filteredAnomalies);
+    }
+    
+    function refreshAnomalies() {
+        if (currentFileId) {
+            loadExistingAnomalies(currentFileId);
+        }
+    }
+    
+    function exportAnomalies() {
+        if (currentAnomalies.length === 0) {
+            window.LogSage.utils.showNotification('No anomalies to export.', 'warning');
+            return;
+        }
+        
+        // TODO: Implement actual export functionality
+        window.LogSage.utils.showNotification('Export functionality will be implemented.', 'info');
+    }
+    
+    function viewRelatedLogsFunction(anomalyId) {
+        // TODO: Navigate to logs page with filters for this anomaly
+        window.LogSage.utils.showNotification('Redirecting to logs page...', 'info');
+        setTimeout(() => {
+            window.location.href = '/logs';
+        }, 1000);
+    }
+    
+    function resetAnomalyView() {
+        const runDetectionBtn = document.getElementById('run-detection');
+        const anomaliesLoading = document.getElementById('anomalies-loading');
+        const tableContainer = document.getElementById('anomalies-table-container');
+        const noAnomalies = document.getElementById('no-anomalies');
+        const stats = document.getElementById('anomaly-stats');
+        
+        if (runDetectionBtn) {
+            runDetectionBtn.disabled = true;
+        }
+        
+        anomaliesLoading.classList.add('hidden');
+        tableContainer.classList.add('hidden');
+        stats.classList.add('hidden');
+        noAnomalies.classList.remove('hidden');
+        
+        currentAnomalies = [];
+        currentFileId = null;
+    }
+    
+    function checkInitialState() {
+        // Initially disable run detection button
+        const runDetectionBtn = document.getElementById('run-detection');
+        if (runDetectionBtn) {
+            runDetectionBtn.disabled = true;
+        }
+    }
+});
+</script>
 {% endblock %}
