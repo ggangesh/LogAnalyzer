@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 Test Matrix Visualization - AI Generated</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .matrix-controls {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-group label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .filter-group select:focus {
+            border-color: #6366f1;
+            outline: none;
+        }
+        
+        .matrix-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow-x: auto;
+        }
+        
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        .matrix-table th,
+        .matrix-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .matrix-table th {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .matrix-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .matrix-table tr:hover {
+            background: #e3f2fd;
+            cursor: pointer;
+        }
+        
+        .requirement-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .test-coverage {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .test-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .test-badge:hover {
+            transform: scale(1.1);
+        }
+        
+        .badge-critical { background: #ffebee; color: #c62828; }
+        .badge-high { background: #fff3e0; color: #ef6c00; }
+        .badge-medium { background: #f3e5f5; color: #7b1fa2; }
+        .badge-low { background: #e8f5e8; color: #2e7d32; }
+        
+        .badge-security { background: #ffebee; color: #c62828; border: 2px solid #ffcdd2; }
+        .badge-performance { background: #fff3e0; color: #ef6c00; border: 2px solid #ffe0b2; }
+        .badge-functional { background: #e3f2fd; color: #1565c0; border: 2px solid #bbdefb; }
+        .badge-happy_path { background: #e8f5e8; color: #2e7d32; border: 2px solid #c8e6c9; }
+        .badge-negative { background: #fce4ec; color: #ad1457; border: 2px solid #f8bbd9; }
+        
+        .coverage-indicator {
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        
+        .covered { background: #e8f5e8; color: #2e7d32; }
+        .not-covered { background: #ffebee; color: #c62828; }
+        .partial { background: #fff3e0; color: #ef6c00; }
+        
+        .matrix-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #6366f1;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        
+        .legend {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .legend h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tooltip {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .matrix-controls { flex-direction: column; align-items: stretch; }
+            .matrix-stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 Test Matrix Visualization</h1>
+            <div class="subtitle">Interactive Requirements-to-Tests Mapping</div>
+            <p><strong>Generated:</strong> 2025-08-03 12:00:22 | <strong>Source:</strong> ../../Product Requirements Document (PRD).md</p>
+        </div>
+        
+        <div class="matrix-stats">
+            <div class="stat-card">
+                <div class="stat-number">20</div>
+                <div class="stat-label">Total Requirements</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Total Test Cases</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Covered Requirements</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">15.0%</div>
+                <div class="stat-label">Coverage Percentage</div>
+            </div>
+        </div>
+        
+        <div class="matrix-controls">
+            <div class="filter-group">
+                <label for="typeFilter">Filter by Type:</label>
+                <select id="typeFilter" onchange="filterMatrix()">
+                    <option value="all">All Types</option>
+                    <option value="functional">Functional</option>
+                    <option value="non_functional">Non-Functional</option>
+                    <option value="security">Security</option>
+                    <option value="ui_ux">UI/UX</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="priorityFilter">Filter by Priority:</label>
+                <select id="priorityFilter" onchange="filterMatrix()">
+                    <option value="all">All Priorities</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="coverageFilter">Filter by Coverage:</label>
+                <select id="coverageFilter" onchange="filterMatrix()">
+                    <option value="all">All</option>
+                    <option value="covered">Covered</option>
+                    <option value="not-covered">Not Covered</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="matrix-container">
+            <table class="matrix-table" id="matrixTable">
+                <thead>
+                    <tr>
+                        <th>Requirement ID</th>
+                        <th>Requirement</th>
+                        <th>Type</th>
+                        <th>Priority</th>
+                        <th>Test Cases</th>
+                        <th>Coverage Status</th>
+                        <th>Test Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="matrix-row" data-type="non_functional" data-priority="critical" data-coverage="covered">
+                        <td><strong>REQ_001</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Product Name LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description**:  
+  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.
+
+---">Product Name LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description*...</td>
+                        <td><span class="test-badge badge-non_functional">NON_FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-critical">CRITICAL</span></td>
+                        <td class="test-coverage"><span class="test-badge badge-critical badge-security tooltip" data-tooltip="T_REQ_001_001: Validate Product Name LogSage AI  
+- **Version**: ...">T_REQ_001_001</span></td>
+                        <td><span class="coverage-indicator covered">✅ Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">1</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="security" data-priority="critical" data-coverage="covered">
+                        <td><strong>REQ_002</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="**Product Name**: LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description**:  
+  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.
+
+---">**Product Name**: LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Descrip...</td>
+                        <td><span class="test-badge badge-security">SECURITY</span></td>
+                        <td><span class="test-badge badge-critical">CRITICAL</span></td>
+                        <td class="test-coverage"><span class="test-badge badge-critical badge-security tooltip" data-tooltip="T_REQ_002_001: Validate **Product Name**: LogSage AI  
+- **Versio...">T_REQ_002_001</span></td>
+                        <td><span class="coverage-indicator covered">✅ Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">1</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="functional" data-priority="high" data-coverage="covered">
+                        <td><strong>REQ_003</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect anomalies and generate summaries  
+- Support natural language Q&A over logs via a local RAG pipeline  
+- Provide UI for browsing logs, summaries, and queries  
+- Fully functional offline (when OpenAI is not used)  
+
+---">Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect a...</td>
+                        <td><span class="test-badge badge-functional">FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span class="test-badge badge-high badge-security tooltip" data-tooltip="T_REQ_003_001: Validate Enable fast log ingestion and parsing fro...">T_REQ_003_001</span></td>
+                        <td><span class="coverage-indicator covered">✅ Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">1</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="functional" data-priority="high" data-coverage="covered">
+                        <td><strong>REQ_004</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect anomalies and generate summaries  
+- Support natural language Q&A over logs via a local RAG pipeline  
+- Provide UI for browsing logs, summaries, and queries  
+- Fully functional offline (when OpenAI is not used)  
+
+---">Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect a...</td>
+                        <td><span class="test-badge badge-functional">FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span class="test-badge badge-high badge-security tooltip" data-tooltip="T_REQ_003_001: Validate Enable fast log ingestion and parsing fro...">T_REQ_003_001</span></td>
+                        <td><span class="coverage-indicator covered">✅ Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">1</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="security" data-priority="high" data-coverage="covered">
+                        <td><strong>REQ_005</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect anomalies and generate summaries  
+- Support natural language Q&A over logs via a local RAG pipeline  
+- Provide UI for browsing logs, summaries, and queries  
+- Fully functional offline (when OpenAI is not used)  
+
+---">Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect a...</td>
+                        <td><span class="test-badge badge-security">SECURITY</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span class="test-badge badge-high badge-security tooltip" data-tooltip="T_REQ_003_001: Validate Enable fast log ingestion and parsing fro...">T_REQ_003_001</span></td>
+                        <td><span class="coverage-indicator covered">✅ Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">1</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="security" data-priority="medium" data-coverage="not-covered">
+                        <td><strong>REQ_006</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Local, on-prem installation  
+- Linux or containerized environment  
+- Optional GPU support for local LLMs  
+
+---">Local, on-prem installation  
+- Linux or containerized environment  
+- Optional ...</td>
+                        <td><span class="test-badge badge-security">SECURITY</span></td>
+                        <td><span class="test-badge badge-medium">MEDIUM</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="functional" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_007</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Log Upload (UI + REST API)  
+- Log Parsing (regex, structured)  
+- Time-Based Filtering (1h, 24h, custom)  
+- Anomaly Detection (latency spikes, errors)  
+- Natural Language Questions (e.g., “Why 500 errors yesterday?”)  
+- Daily/weekly summaries  
+- Downloadable reports (PDF/JSON)">Log Upload (UI + REST API)  
+- Log Parsing (regex, structured)  
+- Time-Based Fi...</td>
+                        <td><span class="test-badge badge-functional">FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="functional" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_008</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Log Upload (UI + REST API)  
+- Log Parsing (regex, structured)  
+- Time-Based Filtering (1h, 24h, custom)  
+- Anomaly Detection (latency spikes, errors)  
+- Natural Language Questions (e.g., “Why 500 errors yesterday?”)  
+- Daily/weekly summaries  
+- Downloadable reports (PDF/JSON)">Log Upload (UI + REST API)  
+- Log Parsing (regex, structured)  
+- Time-Based Fi...</td>
+                        <td><span class="test-badge badge-functional">FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="non_functional" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_009</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Log Upload (UI + REST API)  
+- Log Parsing (regex, structured)  
+- Time-Based Filtering (1h, 24h, custom)  
+- Anomaly Detection (latency spikes, errors)  
+- Natural Language Questions (e.g., “Why 500 errors yesterday?”)  
+- Daily/weekly summaries  
+- Downloadable reports (PDF/JSON)">Log Upload (UI + REST API)  
+- Log Parsing (regex, structured)  
+- Time-Based Fi...</td>
+                        <td><span class="test-badge badge-non_functional">NON_FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="security" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_010</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Entirely local vector and file storage  
+- No external cloud logging or telemetry  
+- Logs and metadata stay on the machine  
+
+---">Entirely local vector and file storage  
+- No external cloud logging or telemetr...</td>
+                        <td><span class="test-badge badge-security">SECURITY</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="non_functional" data-priority="critical" data-coverage="not-covered">
+                        <td><strong>REQ_011</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Latency GPT insights returned within 15 seconds  
+- **File Size**: Supports logs up to 100 MB/file  
+- **Scalability**: Designed for up to 10 GB/day (local disk)  
+- **Security**: Logs stored locally 
+
+---">Latency GPT insights returned within 15 seconds  
+- **File Size**: Supports logs...</td>
+                        <td><span class="test-badge badge-non_functional">NON_FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-critical">CRITICAL</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="non_functional" data-priority="critical" data-coverage="not-covered">
+                        <td><strong>REQ_012</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="**Latency**: GPT insights returned within 15 seconds  
+- **File Size**: Supports logs up to 100 MB/file  
+- **Scalability**: Designed for up to 10 GB/day (local disk)  
+- **Security**: Logs stored locally 
+
+---">**Latency**: GPT insights returned within 15 seconds  
+- **File Size**: Supports...</td>
+                        <td><span class="test-badge badge-non_functional">NON_FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-critical">CRITICAL</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="security" data-priority="critical" data-coverage="not-covered">
+                        <td><strong>REQ_013</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="**Latency**: GPT insights returned within 15 seconds  
+- **File Size**: Supports logs up to 100 MB/file  
+- **Scalability**: Designed for up to 10 GB/day (local disk)  
+- **Security**: Logs stored locally 
+
+---">**Latency**: GPT insights returned within 15 seconds  
+- **File Size**: Supports...</td>
+                        <td><span class="test-badge badge-security">SECURITY</span></td>
+                        <td><span class="test-badge badge-critical">CRITICAL</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="functional" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_014</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="**Framework**: Flask with Jinja2 templates
+- **Styling**: Tailwind CSS for responsive design  
+- **JavaScript**: Vanilla JS/AJAX for dynamic interactions
+- **Communication**: HTTP requests to FastAPI backend">**Framework**: Flask with Jinja2 templates
+- **Styling**: Tailwind CSS for respo...</td>
+                        <td><span class="test-badge badge-functional">FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="non_functional" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_015</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Framework Flask with Jinja2 templates
+- **Styling**: Tailwind CSS for responsive design  
+- **JavaScript**: Vanilla JS/AJAX for dynamic interactions
+- **Communication**: HTTP requests to FastAPI backend">Framework Flask with Jinja2 templates
+- **Styling**: Tailwind CSS for responsive...</td>
+                        <td><span class="test-badge badge-non_functional">NON_FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="functional" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_016</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="**Dashboard**: log volume, error rate, anomaly timeline, frequency
+- **Log Viewer**: filter/search logs by time/type/source  
+- **AI Query Panel**: chat-style NLP questions with AJAX  
+- **Insight Panel**: shows summaries, anomalies, root cause hints  
+- **File Upload Panel**: Flask file upload with progress indicators
+- **Settings**: model, embedding, and retention configuration  
+---">**Dashboard**: log volume, error rate, anomaly timeline, frequency
+- **Log Viewe...</td>
+                        <td><span class="test-badge badge-functional">FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="non_functional" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_017</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Dashboard log volume, error rate, anomaly timeline, frequency
+- **Log Viewer**: filter/search logs by time/type/source  
+- **AI Query Panel**: chat-style NLP questions with AJAX  
+- **Insight Panel**: shows summaries, anomalies, root cause hints  
+- **File Upload Panel**: Flask file upload with progress indicators
+- **Settings**: model, embedding, and retention configuration  
+---">Dashboard log volume, error rate, anomaly timeline, frequency
+- **Log Viewer**: ...</td>
+                        <td><span class="test-badge badge-non_functional">NON_FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="functional" data-priority="medium" data-coverage="not-covered">
+                        <td><strong>REQ_018</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="% logs successfully parsed  
+- GPT insight response time  
+- Anomaly detection precision/recall  
+- AI query volume per user  
+- % use offline vs cloud GPT  
+- User feedback from QA/Beta  
+
+---">% logs successfully parsed  
+- GPT insight response time  
+- Anomaly detection p...</td>
+                        <td><span class="test-badge badge-functional">FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-medium">MEDIUM</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="functional" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_019</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Live log stream ingestion (local syslog/UDP)  
+- Role-based access control (RBAC)  
+- Log correlation across microservices  
+- Support for multiple language logs (non-English)  
+- Voice-based log querying (Whisper or Vosk)  
+- Local UI deployment via Electron or native app">Live log stream ingestion (local syslog/UDP)  
+- Role-based access control (RBAC...</td>
+                        <td><span class="test-badge badge-functional">FUNCTIONAL</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                    <tr class="matrix-row" data-type="security" data-priority="high" data-coverage="not-covered">
+                        <td><strong>REQ_020</strong></td>
+                        <td class="requirement-cell tooltip" data-tooltip="Live log stream ingestion (local syslog/UDP)  
+- Role-based access control (RBAC)  
+- Log correlation across microservices  
+- Support for multiple language logs (non-English)  
+- Voice-based log querying (Whisper or Vosk)  
+- Local UI deployment via Electron or native app">Live log stream ingestion (local syslog/UDP)  
+- Role-based access control (RBAC...</td>
+                        <td><span class="test-badge badge-security">SECURITY</span></td>
+                        <td><span class="test-badge badge-high">HIGH</span></td>
+                        <td class="test-coverage"><span style="color: #999;">No tests</span></td>
+                        <td><span class="coverage-indicator not-covered">❌ Not Covered</span></td>
+                        <td style="text-align: center; font-weight: bold; color: #6366f1;">0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="legend">
+            <h3>🎨 Legend</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="test-badge badge-critical">CRITICAL</span>
+                    <span>Critical Priority</span>
+                </div>
+                <div class="legend-item">
+                    <span class="test-badge badge-high">HIGH</span>
+                    <span>High Priority</span>
+                </div>
+                <div class="legend-item">
+                    <span class="test-badge badge-security">SECURITY</span>
+                    <span>Security Test</span>
+                </div>
+                <div class="legend-item">
+                    <span class="test-badge badge-functional">FUNCTIONAL</span>
+                    <span>Functional Test</span>
+                </div>
+                <div class="legend-item">
+                    <span class="coverage-indicator covered">✅ Covered</span>
+                    <span>Has test cases</span>
+                </div>
+                <div class="legend-item">
+                    <span class="coverage-indicator not-covered">❌ Not Covered</span>
+                    <span>Missing test cases</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function filterMatrix() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const coverageFilter = document.getElementById('coverageFilter').value;
+            
+            const rows = document.querySelectorAll('.matrix-row');
+            
+            rows.forEach(row => {
+                const type = row.getAttribute('data-type');
+                const priority = row.getAttribute('data-priority');
+                const coverage = row.getAttribute('data-coverage');
+                
+                let show = true;
+                
+                if (typeFilter !== 'all' && type !== typeFilter) show = false;
+                if (priorityFilter !== 'all' && priority !== priorityFilter) show = false;
+                if (coverageFilter !== 'all' && coverage !== coverageFilter) show = false;
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+        
+        // Make rows clickable to expand details
+        document.querySelectorAll('.matrix-row').forEach(row => {
+            row.addEventListener('click', function() {
+                // Add highlight effect
+                document.querySelectorAll('.matrix-row').forEach(r => r.style.background = '');
+                this.style.background = '#e3f2fd';
+                
+                // Could add modal or expand functionality here
+                console.log('Row clicked:', this.querySelector('td').textContent);
+            });
+        });
+    </script>
+</body>
+</html>
