@@ -11,14 +11,14 @@ from pathlib import Path
 import pandas as pd
 
 from .database_service import DatabaseService
-from .log_parser import LogParserService
+from .log_parser import LogParser
 from .anomaly_detection import AnomalyDetectionService
 from .chat_service import ChatService
 
 class SummarizationService:
     def __init__(self):
         self.db_service = DatabaseService()
-        self.log_parser = LogParserService()
+        self.log_parser = LogParser()
         self.anomaly_service = AnomalyDetectionService()
         self.chat_service = ChatService()
         
