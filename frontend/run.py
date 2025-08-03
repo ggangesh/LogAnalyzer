@@ -16,7 +16,7 @@ from app import app
 if __name__ == '__main__':
     # Check if .env file exists, if not create from template
     env_file = current_dir / '.env'
-    env_template = current_dir / '.env.template'
+    env_template = current_dir / 'env.template'
     
     if not env_file.exists() and env_template.exists():
         print("Creating .env file from template...")

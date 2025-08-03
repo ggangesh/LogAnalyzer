@@ -57,23 +57,31 @@ async def embed_log_entries(file_id: str, background_tasks: BackgroundTasks, for
         
         if not log_entries:
             # Try to get from parser if not in database
-            parsed_data = log_parser.parse_log_file(metadata.file_path)
-            if parsed_data and parsed_data.get("entries"):
+            parsed_result = log_parser.parse_file(metadata.file_path)
+            if parsed_result and parsed_result.entries:
                 # Convert parsed entries to LogEntry objects
                 from datetime import datetime
                 from ..models.database import LogEntry, LogLevel
                 
                 log_entries = []
-                for entry_data in parsed_data["entries"]:
+                for parser_entry in parsed_result.entries:
+                    # Handle None level
+                    level = None
+                    if parser_entry.level:
+                        try:
+                            level = LogLevel(parser_entry.level.upper())
+                        except ValueError:
+                            level = LogLevel.INFO  # Default fallback
+                    
                     log_entry = LogEntry(
                         file_id=file_id,
-                        timestamp=datetime.fromisoformat(entry_data["timestamp"]),
-                        level=LogLevel(entry_data["level"]),
-                        message=entry_data["message"],
-                        source=entry_data.get("source"),
-                        raw_line=entry_data["raw_line"],
-                        line_number=entry_data["line_number"],
-                        parsed_data=entry_data.get("parsed_data")
+                        timestamp=parser_entry.timestamp,
+                        level=level,
+                        message=parser_entry.message,
+                        source=parser_entry.source,
+                        raw_line=parser_entry.raw_line,
+                        line_number=parser_entry.line_number,
+                        parsed_data=parser_entry.parsed_data
                     )
                     log_entries.append(log_entry)
                 

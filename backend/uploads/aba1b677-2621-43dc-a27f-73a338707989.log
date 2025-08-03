@@ -1,0 +1,10 @@
+2023-12-01 10:30:00 INFO Application startup complete
+2023-12-01 10:31:15 WARN High CPU usage detected: 85%
+2023-12-01 10:32:00 ERROR Database connection timeout after 30 seconds
+2023-12-01 10:33:45 INFO User authentication successful for user_id: 12345
+2023-12-01 10:35:20 DEBUG Processing API request: GET /api/users
+2023-12-01 10:36:10 ERROR File upload failed: Invalid file format
+2023-12-01 10:37:30 INFO Cache refresh completed successfully
+2023-12-01 10:38:15 WARN Slow database query detected: 2.5 seconds
+2023-12-01 10:39:00 INFO System backup completed: 500MB transferred
+2023-12-01 10:40:30 ERROR Payment gateway connection failed 
