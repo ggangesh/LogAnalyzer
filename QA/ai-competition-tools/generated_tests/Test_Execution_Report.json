@@ -1,0 +1,286 @@
+{
+  "generation_info": {
+    "generated_at": "2025-08-03T12:00:22.157980",
+    "prd_source": "../../Product Requirements Document (PRD).md",
+    "generator_version": "1.0.0"
+  },
+  "summary": {
+    "prd_file": "../../Product Requirements Document (PRD).md",
+    "total_requirements_extracted": 20,
+    "requirements_by_type": {
+      "functional": 8,
+      "non_functional": 6,
+      "ui_ux": 0,
+      "security": 6
+    },
+    "total_test_cases_generated": 3,
+    "test_cases_by_type": {
+      "happy_path": 0,
+      "negative": 0,
+      "performance": 0,
+      "security": 3
+    },
+    "estimated_total_execution_time": 50,
+    "coverage_analysis": {
+      "requirements_with_tests": 3,
+      "coverage_percentage": 15.0
+    }
+  },
+  "requirements": [
+    {
+      "id": "REQ_001",
+      "text": "Product Name LogSage AI  \n- **Version**: MVP (v1, Local-Only)  \n- **Description**:  \n  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.\n\n---",
+      "type": "non_functional",
+      "priority": "critical",
+      "source_section": "1. Overview",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_002",
+      "text": "**Product Name**: LogSage AI  \n- **Version**: MVP (v1, Local-Only)  \n- **Description**:  \n  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.\n\n---",
+      "type": "security",
+      "priority": "critical",
+      "source_section": "1. Overview",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_003",
+      "text": "Enable fast log ingestion and parsing from uploaded files  \n- Use AI to detect anomalies and generate summaries  \n- Support natural language Q&A over logs via a local RAG pipeline  \n- Provide UI for browsing logs, summaries, and queries  \n- Fully functional offline (when OpenAI is not used)  \n\n---",
+      "type": "functional",
+      "priority": "high",
+      "source_section": "2. Goals & Objectives",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_004",
+      "text": "Enable fast log ingestion and parsing from uploaded files  \n- Use AI to detect anomalies and generate summaries  \n- Support natural language Q&A over logs via a local RAG pipeline  \n- Provide UI for browsing logs, summaries, and queries  \n- Fully functional offline (when OpenAI is not used)  \n\n---",
+      "type": "functional",
+      "priority": "high",
+      "source_section": "2. Goals & Objectives",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_005",
+      "text": "Enable fast log ingestion and parsing from uploaded files  \n- Use AI to detect anomalies and generate summaries  \n- Support natural language Q&A over logs via a local RAG pipeline  \n- Provide UI for browsing logs, summaries, and queries  \n- Fully functional offline (when OpenAI is not used)  \n\n---",
+      "type": "security",
+      "priority": "high",
+      "source_section": "2. Goals & Objectives",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_006",
+      "text": "Local, on-prem installation  \n- Linux or containerized environment  \n- Optional GPU support for local LLMs  \n\n---",
+      "type": "security",
+      "priority": "medium",
+      "source_section": "4. Deployment Type",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_007",
+      "text": "Log Upload (UI + REST API)  \n- Log Parsing (regex, structured)  \n- Time-Based Filtering (1h, 24h, custom)  \n- Anomaly Detection (latency spikes, errors)  \n- Natural Language Questions (e.g., “Why 500 errors yesterday?”)  \n- Daily/weekly summaries  \n- Downloadable reports (PDF/JSON)",
+      "type": "functional",
+      "priority": "high",
+      "source_section": "✅ MVP Features",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_008",
+      "text": "Log Upload (UI + REST API)  \n- Log Parsing (regex, structured)  \n- Time-Based Filtering (1h, 24h, custom)  \n- Anomaly Detection (latency spikes, errors)  \n- Natural Language Questions (e.g., “Why 500 errors yesterday?”)  \n- Daily/weekly summaries  \n- Downloadable reports (PDF/JSON)",
+      "type": "functional",
+      "priority": "high",
+      "source_section": "✅ MVP Features",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_009",
+      "text": "Log Upload (UI + REST API)  \n- Log Parsing (regex, structured)  \n- Time-Based Filtering (1h, 24h, custom)  \n- Anomaly Detection (latency spikes, errors)  \n- Natural Language Questions (e.g., “Why 500 errors yesterday?”)  \n- Daily/weekly summaries  \n- Downloadable reports (PDF/JSON)",
+      "type": "non_functional",
+      "priority": "high",
+      "source_section": "✅ MVP Features",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_010",
+      "text": "Entirely local vector and file storage  \n- No external cloud logging or telemetry  \n- Logs and metadata stay on the machine  \n\n---",
+      "type": "security",
+      "priority": "high",
+      "source_section": "🔒 Privacy Features",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_011",
+      "text": "Latency GPT insights returned within 15 seconds  \n- **File Size**: Supports logs up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---",
+      "type": "non_functional",
+      "priority": "critical",
+      "source_section": "7. Non-Functional Requirements",
+      "measurable_criteria": [
+        "15 seconds",
+        "100 MB",
+        "10 GB",
+        "up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---",
+        "within 15 seconds  \n- **File Size**: Supports logs up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---"
+      ]
+    },
+    {
+      "id": "REQ_012",
+      "text": "**Latency**: GPT insights returned within 15 seconds  \n- **File Size**: Supports logs up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---",
+      "type": "non_functional",
+      "priority": "critical",
+      "source_section": "7. Non-Functional Requirements",
+      "measurable_criteria": [
+        "15 seconds",
+        "100 MB",
+        "10 GB",
+        "up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---",
+        "within 15 seconds  \n- **File Size**: Supports logs up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---"
+      ]
+    },
+    {
+      "id": "REQ_013",
+      "text": "**Latency**: GPT insights returned within 15 seconds  \n- **File Size**: Supports logs up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---",
+      "type": "security",
+      "priority": "critical",
+      "source_section": "7. Non-Functional Requirements",
+      "measurable_criteria": [
+        "15 seconds",
+        "100 MB",
+        "10 GB",
+        "up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---",
+        "within 15 seconds  \n- **File Size**: Supports logs up to 100 MB/file  \n- **Scalability**: Designed for up to 10 GB/day (local disk)  \n- **Security**: Logs stored locally \n\n---"
+      ]
+    },
+    {
+      "id": "REQ_014",
+      "text": "**Framework**: Flask with Jinja2 templates\n- **Styling**: Tailwind CSS for responsive design  \n- **JavaScript**: Vanilla JS/AJAX for dynamic interactions\n- **Communication**: HTTP requests to FastAPI backend",
+      "type": "functional",
+      "priority": "high",
+      "source_section": "Frontend Architecture",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_015",
+      "text": "Framework Flask with Jinja2 templates\n- **Styling**: Tailwind CSS for responsive design  \n- **JavaScript**: Vanilla JS/AJAX for dynamic interactions\n- **Communication**: HTTP requests to FastAPI backend",
+      "type": "non_functional",
+      "priority": "high",
+      "source_section": "Frontend Architecture",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_016",
+      "text": "**Dashboard**: log volume, error rate, anomaly timeline, frequency\n- **Log Viewer**: filter/search logs by time/type/source  \n- **AI Query Panel**: chat-style NLP questions with AJAX  \n- **Insight Panel**: shows summaries, anomalies, root cause hints  \n- **File Upload Panel**: Flask file upload with progress indicators\n- **Settings**: model, embedding, and retention configuration  \n---",
+      "type": "functional",
+      "priority": "high",
+      "source_section": "UI Components",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_017",
+      "text": "Dashboard log volume, error rate, anomaly timeline, frequency\n- **Log Viewer**: filter/search logs by time/type/source  \n- **AI Query Panel**: chat-style NLP questions with AJAX  \n- **Insight Panel**: shows summaries, anomalies, root cause hints  \n- **File Upload Panel**: Flask file upload with progress indicators\n- **Settings**: model, embedding, and retention configuration  \n---",
+      "type": "non_functional",
+      "priority": "high",
+      "source_section": "UI Components",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_018",
+      "text": "% logs successfully parsed  \n- GPT insight response time  \n- Anomaly detection precision/recall  \n- AI query volume per user  \n- % use offline vs cloud GPT  \n- User feedback from QA/Beta  \n\n---",
+      "type": "functional",
+      "priority": "medium",
+      "source_section": "10. Success Metrics (KPIs)",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_019",
+      "text": "Live log stream ingestion (local syslog/UDP)  \n- Role-based access control (RBAC)  \n- Log correlation across microservices  \n- Support for multiple language logs (non-English)  \n- Voice-based log querying (Whisper or Vosk)  \n- Local UI deployment via Electron or native app",
+      "type": "functional",
+      "priority": "high",
+      "source_section": "11. Future Enhancements (Post-MVP)",
+      "measurable_criteria": []
+    },
+    {
+      "id": "REQ_020",
+      "text": "Live log stream ingestion (local syslog/UDP)  \n- Role-based access control (RBAC)  \n- Log correlation across microservices  \n- Support for multiple language logs (non-English)  \n- Voice-based log querying (Whisper or Vosk)  \n- Local UI deployment via Electron or native app",
+      "type": "security",
+      "priority": "high",
+      "source_section": "11. Future Enhancements (Post-MVP)",
+      "measurable_criteria": []
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "T_REQ_001_001",
+      "title": "Validate Product Name LogSage AI  \n- **Version**: MVP (v1, ...",
+      "description": "Verify that the system meets the requirement: Product Name LogSage AI  \n- **Version**: MVP (v1, Local-Only)  \n- **Description**:  \n  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.\n\n---",
+      "type": "security",
+      "priority": "critical",
+      "estimated_duration": 20,
+      "source_requirement": "Product Name LogSage AI  \n- **Version**: MVP (v1, Local-Only)  \n- **Description**:  \n  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.\n\n---",
+      "test_steps": [
+        "Setup test environment for 1. Overview",
+        "Prepare test data for non_functional requirement",
+        "Execute functionality related to: Product Name LogSage AI  \n- **Version**: MVP (v1, ",
+        "Verify system behavior meets requirement",
+        "Validate compliance with PRD specification"
+      ],
+      "expected_result": "System successfully implements: Product Name LogSage AI  \n- **Version**: MVP (v1, Local-Only)  \n- **Description**:  \n  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.\n\n---",
+      "test_data": {
+        "requirement_id": "REQ_001",
+        "requirement_type": "non_functional",
+        "measurable_criteria": [],
+        "source_section": "1. Overview"
+      }
+    },
+    {
+      "id": "T_REQ_002_001",
+      "title": "Validate **Product Name**: LogSage AI  \n- **Version**: MVP ...",
+      "description": "Verify that the system meets the requirement: **Product Name**: LogSage AI  \n- **Version**: MVP (v1, Local-Only)  \n- **Description**:  \n  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.\n\n---",
+      "type": "security",
+      "priority": "critical",
+      "estimated_duration": 20,
+      "source_requirement": "**Product Name**: LogSage AI  \n- **Version**: MVP (v1, Local-Only)  \n- **Description**:  \n  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.\n\n---",
+      "test_steps": [
+        "Setup test environment for 1. Overview",
+        "Prepare test data for security requirement",
+        "Execute functionality related to: **Product Name**: LogSage AI  \n- **Version**: MVP ",
+        "Verify system behavior meets requirement",
+        "Validate compliance with PRD specification"
+      ],
+      "expected_result": "System successfully implements: **Product Name**: LogSage AI  \n- **Version**: MVP (v1, Local-Only)  \n- **Description**:  \n  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.\n\n---",
+      "test_data": {
+        "requirement_id": "REQ_002",
+        "requirement_type": "security",
+        "measurable_criteria": [],
+        "source_section": "1. Overview"
+      }
+    },
+    {
+      "id": "T_REQ_003_001",
+      "title": "Validate Enable fast log ingestion and parsing from uploade...",
+      "description": "Verify that the system meets the requirement: Enable fast log ingestion and parsing from uploaded files  \n- Use AI to detect anomalies and generate summaries  \n- Support natural language Q&A over logs via a local RAG pipeline  \n- Provide UI for browsing logs, summaries, and queries  \n- Fully functional offline (when OpenAI is not used)  \n\n---",
+      "type": "security",
+      "priority": "high",
+      "estimated_duration": 10,
+      "source_requirement": "Enable fast log ingestion and parsing from uploaded files  \n- Use AI to detect anomalies and generate summaries  \n- Support natural language Q&A over logs via a local RAG pipeline  \n- Provide UI for browsing logs, summaries, and queries  \n- Fully functional offline (when OpenAI is not used)  \n\n---",
+      "test_steps": [
+        "Setup test environment with file upload capability",
+        "Prepare test files meeting requirement criteria",
+        "Execute file upload functionality",
+        "Verify upload success and file processing",
+        "Validate system behavior meets PRD requirement"
+      ],
+      "expected_result": "System successfully implements: Enable fast log ingestion and parsing from uploaded files  \n- Use AI to detect anomalies and generate summaries  \n- Support natural language Q&A over logs via a local RAG pipeline  \n- Provide UI for browsing logs, summaries, and queries  \n- Fully functional offline (when OpenAI is not used)  \n\n---",
+      "test_data": {
+        "requirement_id": "REQ_003",
+        "requirement_type": "functional",
+        "measurable_criteria": [],
+        "source_section": "2. Goals & Objectives"
+      }
+    }
+  ],
+  "execution_recommendations": [
+    "Execute critical priority tests first",
+    "Run security tests in isolated environment",
+    "Monitor performance tests for resource usage",
+    "Generate detailed reports for traceability"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "T_REQ_001_001": {
+    "test_type": "security",
+    "priority": "critical",
+    "test_data": {
+      "requirement_id": "REQ_001",
+      "requirement_type": "non_functional",
+      "measurable_criteria": [],
+      "source_section": "1. Overview"
+    },
+    "expected_duration": 20
+  },
+  "T_REQ_002_001": {
+    "test_type": "security",
+    "priority": "critical",
+    "test_data": {
+      "requirement_id": "REQ_002",
+      "requirement_type": "security",
+      "measurable_criteria": [],
+      "source_section": "1. Overview"
+    },
+    "expected_duration": 20
+  },
+  "T_REQ_003_001": {
+    "test_type": "security",
+    "priority": "high",
+    "test_data": {
+      "requirement_id": "REQ_003",
+      "requirement_type": "functional",
+      "measurable_criteria": [],
+      "source_section": "2. Goals & Objectives"
+    },
+    "expected_duration": 10
+  }
+}

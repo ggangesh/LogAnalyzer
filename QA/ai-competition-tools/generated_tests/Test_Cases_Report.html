@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 PRD Test Cases Report - AI Generated</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+        
+        .index-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .index-title {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .index-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .index-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .index-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+        
+        .index-item a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .test-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge-critical { background: #ffebee; color: #c62828; }
+        .badge-high { background: #fff3e0; color: #ef6c00; }
+        .badge-medium { background: #f3e5f5; color: #7b1fa2; }
+        .badge-low { background: #e8f5e8; color: #2e7d32; }
+        
+        .badge-security { background: #ffebee; color: #c62828; }
+        .badge-performance { background: #fff3e0; color: #ef6c00; }
+        .badge-functional { background: #e3f2fd; color: #1565c0; }
+        
+        .test-case {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .test-case h3 {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .test-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .detail-item {
+            text-align: center;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .test-steps {
+            margin: 20px 0;
+        }
+        
+        .test-steps h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .steps-list {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+        
+        .steps-list li {
+            counter-increment: step-counter;
+            margin-bottom: 10px;
+            padding-left: 40px;
+            position: relative;
+        }
+        
+        .steps-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #3498db;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .expected-result {
+            background: #e8f5e8;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .expected-result h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 40px;
+            padding: 20px;
+        }
+        
+        .ai-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 2em; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .test-details { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 PRD Test Cases Report</h1>
+            <div class="subtitle">AI-Generated Test Suite from Business Requirements</div>
+            <div class="ai-badge">🤖 Powered by Dynamic PRD Analysis</div>
+            <p><strong>Generated:</strong> 2025-08-03 12:00:22 | <strong>Source:</strong> ../../Product Requirements Document (PRD).md</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">20</div>
+                <div class="stat-label">Requirements</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Test Cases</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50</div>
+                <div class="stat-label">Minutes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">15.0%</div>
+                <div class="stat-label">Coverage</div>
+            </div>
+        </div>
+        
+        <div class="index-section">
+            <h2 class="index-title">📋 Test Case Index</h2>
+            <ul class="index-list">
+                <li class="index-item">
+                    <a href="#test-1">
+                        <strong>T_REQ_001_001</strong>: Validate Product Name LogSage AI  
+- **Version**: MVP (v1, ....
+                        <span class="test-badge badge-critical">CRITICAL</span>
+                        <span class="test-badge badge-security">SECURITY</span>
+                    </a>
+                </li>
+                <li class="index-item">
+                    <a href="#test-2">
+                        <strong>T_REQ_002_001</strong>: Validate **Product Name**: LogSage AI  
+- **Version**: MVP ....
+                        <span class="test-badge badge-critical">CRITICAL</span>
+                        <span class="test-badge badge-security">SECURITY</span>
+                    </a>
+                </li>
+                <li class="index-item">
+                    <a href="#test-3">
+                        <strong>T_REQ_003_001</strong>: Validate Enable fast log ingestion and parsing from uploade....
+                        <span class="test-badge badge-high">HIGH</span>
+                        <span class="test-badge badge-security">SECURITY</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="test-case" id="test-1">
+            <h3>
+                T_REQ_001_001: Validate Product Name LogSage AI  
+- **Version**: MVP (v1, ...
+                <div>
+                    <span class="test-badge badge-critical">CRITICAL</span>
+                    <span class="test-badge badge-security">SECURITY</span>
+                </div>
+            </h3>
+            
+            <p><strong>Description:</strong> Verify that the system meets the requirement: Product Name LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description**:  
+  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.
+
+---</p>
+            
+            <div class="test-details">
+                <div class="detail-item">
+                    <div class="detail-label">Test Type</div>
+                    <div class="detail-value">security</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Priority</div>
+                    <div class="detail-value">critical</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Duration</div>
+                    <div class="detail-value">20 min</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Test ID</div>
+                    <div class="detail-value">T_REQ_001_001</div>
+                </div>
+            </div>
+            
+            <div class="test-steps">
+                <h4>🔹 Test Steps</h4>
+                <ol class="steps-list"><li>Setup test environment for 1. Overview</li><li>Prepare test data for non_functional requirement</li><li>Execute functionality related to: Product Name LogSage AI  
+- **Version**: MVP (v1, </li><li>Verify system behavior meets requirement</li><li>Validate compliance with PRD specification</li>
+                </ol>
+            </div>
+            
+            <div class="expected-result">
+                <h4>✅ Expected Result</h4>
+                <p>System successfully implements: Product Name LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description**:  
+  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.
+
+---</p>
+            </div>
+            
+            <details style="margin-top: 15px;">
+                <summary style="cursor: pointer; font-weight: bold; color: #3498db;">📊 Test Data & Configuration</summary>
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; overflow-x: auto;">{
+  "requirement_id": "REQ_001",
+  "requirement_type": "non_functional",
+  "measurable_criteria": [],
+  "source_section": "1. Overview"
+}</pre>
+            </details>
+            
+            <p style="margin-top: 15px; color: #7f8c8d; font-style: italic;">
+                <strong>Source Requirement:</strong> Product Name LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description**:  
+  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and pro...
+            </p>
+        </div>
+        <div class="test-case" id="test-2">
+            <h3>
+                T_REQ_002_001: Validate **Product Name**: LogSage AI  
+- **Version**: MVP ...
+                <div>
+                    <span class="test-badge badge-critical">CRITICAL</span>
+                    <span class="test-badge badge-security">SECURITY</span>
+                </div>
+            </h3>
+            
+            <p><strong>Description:</strong> Verify that the system meets the requirement: **Product Name**: LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description**:  
+  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.
+
+---</p>
+            
+            <div class="test-details">
+                <div class="detail-item">
+                    <div class="detail-label">Test Type</div>
+                    <div class="detail-value">security</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Priority</div>
+                    <div class="detail-value">critical</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Duration</div>
+                    <div class="detail-value">20 min</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Test ID</div>
+                    <div class="detail-value">T_REQ_002_001</div>
+                </div>
+            </div>
+            
+            <div class="test-steps">
+                <h4>🔹 Test Steps</h4>
+                <ol class="steps-list"><li>Setup test environment for 1. Overview</li><li>Prepare test data for security requirement</li><li>Execute functionality related to: **Product Name**: LogSage AI  
+- **Version**: MVP </li><li>Verify system behavior meets requirement</li><li>Validate compliance with PRD specification</li>
+                </ol>
+            </div>
+            
+            <div class="expected-result">
+                <h4>✅ Expected Result</h4>
+                <p>System successfully implements: **Product Name**: LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description**:  
+  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, and provides actionable insights using a Retrieval-Augmented Generation (RAG) pipeline and GPT-style models. It is designed for privacy-sensitive environments, entirely self-hosted with no cloud dependencies.
+
+---</p>
+            </div>
+            
+            <details style="margin-top: 15px;">
+                <summary style="cursor: pointer; font-weight: bold; color: #3498db;">📊 Test Data & Configuration</summary>
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; overflow-x: auto;">{
+  "requirement_id": "REQ_002",
+  "requirement_type": "security",
+  "measurable_criteria": [],
+  "source_section": "1. Overview"
+}</pre>
+            </details>
+            
+            <p style="margin-top: 15px; color: #7f8c8d; font-style: italic;">
+                <strong>Source Requirement:</strong> **Product Name**: LogSage AI  
+- **Version**: MVP (v1, Local-Only)  
+- **Description**:  
+  LogSage AI is a local-first, AI-powered log analysis tool that ingests logs from flat files, parses them, an...
+            </p>
+        </div>
+        <div class="test-case" id="test-3">
+            <h3>
+                T_REQ_003_001: Validate Enable fast log ingestion and parsing from uploade...
+                <div>
+                    <span class="test-badge badge-high">HIGH</span>
+                    <span class="test-badge badge-security">SECURITY</span>
+                </div>
+            </h3>
+            
+            <p><strong>Description:</strong> Verify that the system meets the requirement: Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect anomalies and generate summaries  
+- Support natural language Q&A over logs via a local RAG pipeline  
+- Provide UI for browsing logs, summaries, and queries  
+- Fully functional offline (when OpenAI is not used)  
+
+---</p>
+            
+            <div class="test-details">
+                <div class="detail-item">
+                    <div class="detail-label">Test Type</div>
+                    <div class="detail-value">security</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Priority</div>
+                    <div class="detail-value">high</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Duration</div>
+                    <div class="detail-value">10 min</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Test ID</div>
+                    <div class="detail-value">T_REQ_003_001</div>
+                </div>
+            </div>
+            
+            <div class="test-steps">
+                <h4>🔹 Test Steps</h4>
+                <ol class="steps-list"><li>Setup test environment with file upload capability</li><li>Prepare test files meeting requirement criteria</li><li>Execute file upload functionality</li><li>Verify upload success and file processing</li><li>Validate system behavior meets PRD requirement</li>
+                </ol>
+            </div>
+            
+            <div class="expected-result">
+                <h4>✅ Expected Result</h4>
+                <p>System successfully implements: Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect anomalies and generate summaries  
+- Support natural language Q&A over logs via a local RAG pipeline  
+- Provide UI for browsing logs, summaries, and queries  
+- Fully functional offline (when OpenAI is not used)  
+
+---</p>
+            </div>
+            
+            <details style="margin-top: 15px;">
+                <summary style="cursor: pointer; font-weight: bold; color: #3498db;">📊 Test Data & Configuration</summary>
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; overflow-x: auto;">{
+  "requirement_id": "REQ_003",
+  "requirement_type": "functional",
+  "measurable_criteria": [],
+  "source_section": "2. Goals & Objectives"
+}</pre>
+            </details>
+            
+            <p style="margin-top: 15px; color: #7f8c8d; font-style: italic;">
+                <strong>Source Requirement:</strong> Enable fast log ingestion and parsing from uploaded files  
+- Use AI to detect anomalies and generate summaries  
+- Support natural language Q&A over logs via a local RAG pipeline  
+- Provide UI for b...
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>🤖 Generated by Dynamic PRD Test Generator | 🎯 3 test cases from 20 requirements</p>
+            <p>🚀 Competition-ready AI-powered QA automation</p>
+        </div>
+    </div>
+</body>
+</html>
